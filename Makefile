@@ -1,9 +1,9 @@
 
 CC=g++
 TARGET=bin/app
-IDIR=-I/home/nate/mygame/includes
+IDIR=-Iincludes/
 
-LDIR=-L/home/nate/mygame/lib
+LDIR=-Llib/
 
 LIBS=-lGL -lGLU -lglfw -lX11 -lXxf86vm -lXrandr -lpthread -lXi -ldl
 
