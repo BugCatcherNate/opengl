@@ -1,6 +1,8 @@
-
 CC=g++
+
+$(shell mkdir -p bin)
 TARGET=bin/app
+
 IDIR=-Iincludes/
 
 LDIR=-Llib/
