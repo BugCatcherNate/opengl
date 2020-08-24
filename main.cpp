@@ -1,5 +1,6 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <utils/shader.h>
 
 #include <iostream>
 
@@ -59,6 +60,9 @@ int main()
         std::cout << "Failed to initialize GLAD" << std::endl;
         return -1;
     }    
+
+   Shader s; 
+   s.compile("vert.txt","frag.txt");
 
         // build and compile our shader program
     // ------------------------------------
