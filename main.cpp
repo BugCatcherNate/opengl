@@ -15,16 +15,8 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
-//const float radius = 10.0f;
 
 Camera cam = Camera(glm::vec3(0.0f,0.0f,3.0f), SCR_WIDTH, SCR_HEIGHT);
-
-bool firstMouse = true;
-//float yaw   = -90.0f;	// yaw is initialized to -90.0 degrees since a yaw of 0.0 results in a direction vector pointing to the right so we initially rotate a bit to the left.
-//float pitch =  0.0f;
-float lastX =  800 / 2.0;
-float lastY =  600 / 2.0;
-//float fov   =  45.0f;
 
 float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
@@ -138,13 +130,11 @@ int main()
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
        	glm::mat4 model = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
-	float camX = sin(glfwGetTime()) * cam.getRadius();
-	float camZ = cos(glfwGetTime()) * cam.getRadius();
-	glm::mat4 view;
-	view = glm::lookAt(cam.getPosition(), cam.getPosition() + cam.getFront(), cam.getUp());
+	glm::mat4 view = cam.calcView();
        	glm::mat4 projection = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
 
 	projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+
 	s.use();
         unsigned int modelLoc = glGetUniformLocation(s.ID, "model");
         unsigned int viewLoc  = glGetUniformLocation(s.ID, "view");
@@ -196,36 +186,9 @@ void processInput(GLFWwindow *window)
 // -------------------------------------------------------
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
-    if (firstMouse)
-    {
-        lastX = xpos;
-        lastY = ypos;
-        firstMouse = false;
-    }
+    cam.look(xpos,ypos);
+    cam.updateCam();
 
-    float xoffset = xpos - lastX;
-    float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
-    lastX = xpos;
-    lastY = ypos;
-
-    float sensitivity = 0.1f; // change this value to your liking
-    xoffset *= sensitivity;
-    yoffset *= sensitivity;
-
-    cam.incYaw(xoffset);
-    cam.incPitch(yoffset);
-
-    // make sure that when pitch is out of bounds, screen doesn't get flipped
-//    if (pitch > 89.0f)
-//        pitch = 89.0f;
-//    if (pitch < -89.0f)
-//        pitch = -89.0f;
-
-    glm::vec3 front;
-    front.x = cos(glm::radians(cam.getYaw())) * cos(glm::radians(cam.getPitch()));
-    front.y = sin(glm::radians(cam.getPitch()));
-    front.z = sin(glm::radians(cam.getYaw())) * cos(glm::radians(cam.getPitch()));
-    cam.setFront(glm::normalize(front));
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes

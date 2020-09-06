@@ -3,6 +3,7 @@
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
 
 class Camera
 {
@@ -17,6 +18,12 @@ class Camera
 		float radius = 10.0f;
 		float SCR_WIDTH;
 		float SCR_HEIGHT;
+		float sensitivity = 0.1f;
+
+		bool firstMouse = true;
+		float lastX =  800 / 2.0;
+		float lastY =  600 / 2.0;
+
 
 	public:
 	// Constructor
@@ -26,7 +33,8 @@ class Camera
 			cameraPos = position;
 			SCR_WIDTH = width;
 			SCR_HEIGHT = height;
-			
+			lastX = SCR_WIDTH / 2.0f;
+			lastY = SCR_HEIGHT / 2.0f;	
 
 		}
 	// getters and setters
@@ -125,6 +133,48 @@ class Camera
 
     			if (pitch < -89.0f)
         			pitch = -89.0f;
+		}
+
+		glm::mat4 calcView(){
+
+			return glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+
+		}
+		//update directional vector 
+		void updateCam(){
+			
+			 glm::vec3 front;
+
+			 front.x = cos(glm::radians(getYaw())) * cos(glm::radians(getPitch()));
+
+			 front.y = sin(glm::radians(getPitch()));
+			 front.z = sin(glm::radians(getYaw())) * cos(glm::radians(getPitch()));
+
+			 setFront(glm::normalize(front));
+
+		}
+		
+		// rotate camera based on screen coordinate (x,y)
+		void look(double xpos, double ypos)		   {
+
+			if (firstMouse){
+
+        	    	    lastX = xpos;
+        	    	    lastY = ypos;
+        	    	    firstMouse = false;
+		    	}
+
+    			float xoffset = xpos - lastX;
+    			float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
+    			lastX = xpos;
+    			lastY = ypos;
+
+    			xoffset *= sensitivity;
+    			yoffset *= sensitivity;
+
+    			incYaw(xoffset);
+    			incPitch(yoffset);
+
 		}
 
 };
