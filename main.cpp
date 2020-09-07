@@ -2,6 +2,7 @@
 #include <GLFW/glfw3.h>
 #include <utils/shader.h>
 #include <utils/camera.h>
+#include <utils/object.h>
 #include <glm/vec3.hpp> // glm::vec3
 #include <glm/vec4.hpp> // glm::vec4
 #include <glm/mat4x4.hpp> // glm::mat4
@@ -17,6 +18,7 @@ const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
 Camera cam = Camera(glm::vec3(0.0f,0.0f,3.0f), SCR_WIDTH, SCR_HEIGHT);
+Object cube = Object(glm::vec3(0.0f,0.0f,0.0f));
 
 float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
@@ -130,6 +132,7 @@ int main()
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
        	glm::mat4 model = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
+	model = glm::translate(model,cube.getPosition());
 	glm::mat4 view = cam.calcView();
        	glm::mat4 projection = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
 
