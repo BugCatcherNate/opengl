@@ -19,24 +19,23 @@ class Camera
 		float SCR_WIDTH;
 		float SCR_HEIGHT;
 		float sensitivity = 0.1f;
-
+		float pitchLimit = 89.0f; 
 		bool firstMouse = true;
-		float lastX =  800 / 2.0;
-		float lastY =  600 / 2.0;
+		float lastX;
+		float lastY;
 
 
 	public:
 	// Constructor
 		Camera(glm::vec3 position, float width, float height){
 
-
 			cameraPos = position;
 			SCR_WIDTH = width;
 			SCR_HEIGHT = height;
 			lastX = SCR_WIDTH / 2.0f;
 			lastY = SCR_HEIGHT / 2.0f;	
-
 		}
+
 	// getters and setters
 		void setPosition(glm::vec3 pos){
 
@@ -128,11 +127,11 @@ class Camera
 		// methods
 		void boundPitch(){
 
-			if (pitch > 89.0f)
-        			pitch = 89.0f;
+			if (pitch > pitchLimit)
+        			pitch = pitchLimit;
 
-    			if (pitch < -89.0f)
-        			pitch = -89.0f;
+    			if (pitch < -pitchLimit)
+        			pitch = -pitchLimit;
 		}
 
 		glm::mat4 calcView(){
@@ -162,7 +161,7 @@ class Camera
         	    	    lastX = xpos;
         	    	    lastY = ypos;
         	    	    firstMouse = false;
-		    	}
+		    	}else if(xpos != lastX || ypos != lastY){
 
     			float xoffset = xpos - lastX;
     			float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
@@ -175,6 +174,10 @@ class Camera
     			incYaw(xoffset);
     			incPitch(yoffset);
 
+		}else{
+		
+			return;	
+		}
 		}
 
 };
