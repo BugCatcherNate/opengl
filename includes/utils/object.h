@@ -3,6 +3,11 @@
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
+#include <utils/shader.h>
+#include <utils/camera.h>
+#include <glm/gtc/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
+#include <glm/gtc/type_ptr.hpp>
+
 
 class Object
 {
@@ -35,7 +40,6 @@ class Object
 			return position;
 		}
 		
-
 		// Methods
 
 		void prepare(){
@@ -95,11 +99,25 @@ class Object
 
 		}
 
-		void draw(){
+		void draw(Camera cam, Shader s){
+       	glm::mat4 model = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
+	model = glm::translate(model,getPosition());
+	glm::mat4 view = cam.calcView();
+       	glm::mat4 projection = cam.calcProjection(); // make sure to initialize matrix to identity matrix first
+
+	s.use();
+        unsigned int modelLoc = glGetUniformLocation(s.ID, "model");
+        unsigned int viewLoc  = glGetUniformLocation(s.ID, "view");
+        // pass them to the shaders (3 different ways)
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
+
+        s.setMat4("projection", projection);
 
 
-        glBindVertexArray(VAO); 
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        	glBindVertexArray(VAO); 
+        	glDrawArrays(GL_TRIANGLES, 0, 36);
 
 
 		}

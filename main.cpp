@@ -19,6 +19,7 @@ const unsigned int SCR_HEIGHT = 600;
 
 Camera cam = Camera(glm::vec3(0.0f,0.0f,3.0f), SCR_WIDTH, SCR_HEIGHT);
 Object cube = Object(glm::vec3(0.0f,3.0f,0.0f));
+Object cubeTwo = Object(glm::vec3(0.0f,0.0f,0.0f));
 
 float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
@@ -48,7 +49,6 @@ int main()
 
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-
     // glad: load all OpenGL function pointers
     // ---------------------------------------
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -62,6 +62,7 @@ int main()
     Shader s("vert.txt","frag.txt"); 
 
     cube.prepare();
+    cubeTwo.prepare();
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
@@ -77,28 +78,10 @@ int main()
         // ------
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-       	glm::mat4 model = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
-	model = glm::translate(model,cube.getPosition());
-	glm::mat4 view = cam.calcView();
-       	glm::mat4 projection = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
 
-	projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+	cube.draw(cam, s);
+	cubeTwo.draw(cam, s);
 
-	s.use();
-        unsigned int modelLoc = glGetUniformLocation(s.ID, "model");
-        unsigned int viewLoc  = glGetUniformLocation(s.ID, "view");
-        // pass them to the shaders (3 different ways)
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
-        // note: currently we set the projection matrix each frame, but since the projection matrix rarely changes it's often best practice to set it outside the main loop only once.
-        s.setMat4("projection", projection);
-
-
-       // glBindVertexArray(cube.VAO); 
-        //glDrawArrays(GL_TRIANGLES, 0, 36);
-	cube.draw();
-
-        // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
         glfwPollEvents();

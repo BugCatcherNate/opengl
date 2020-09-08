@@ -23,7 +23,8 @@ class Camera
 		bool firstMouse = true;
 		float lastX;
 		float lastY;
-
+		float nearPlane = 0.1f;
+		float farPlane = 100.0f; 
 
 	public:
 	// Constructor
@@ -132,6 +133,11 @@ class Camera
 
     			if (pitch < -pitchLimit)
         			pitch = -pitchLimit;
+		}
+
+		glm::mat4 calcProjection(){
+
+		return glm::perspective(glm::radians(fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, nearPlane, farPlane);
 		}
 
 		glm::mat4 calcView(){
