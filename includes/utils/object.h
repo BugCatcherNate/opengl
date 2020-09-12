@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 #include <utils/shader.h>
 #include <utils/camera.h>
+#include <math.h>
 #include <glm/gtc/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
 #include <glm/gtc/type_ptr.hpp>
 
@@ -14,6 +15,8 @@ class Object
 	private:
 		
 	    	glm::vec3 position;
+		glm::vec3 rotationAxis;
+		float rotationRadians;
 	public:	
  		unsigned int VBO, VAO, EBO;
 		
@@ -22,6 +25,9 @@ class Object
 	    	Object(glm::vec3 pos)
 	    	{
 		position = pos;
+		rotationRadians = 0.0f;
+		rotationAxis = glm::vec3(1.0f, 1.0f, 1.0f);
+	
 	    	}
 	
 	    	// getters and setters
@@ -39,8 +45,31 @@ class Object
 	
 			return position;
 		}
+
+		void setRotationAxis(glm::vec3 axis){	
+			rotationAxis = axis;
+		}
+			
 		
-		// Methods
+		glm::vec3 getRotationAxis(){
+	
+			return rotationAxis;
+		}
+		void setRotationRadians(float rad){
+	
+			rotationRadians = rad;
+		}
+			
+		void incRotationRadians(float rad){
+	
+			rotationRadians += rad;
+		}
+	
+		float getRotationRadians(){
+	
+			return rotationRadians;
+		}
+	// Methods
 
 		void prepare(){
 	        float vertices[] = {
@@ -95,13 +124,32 @@ class Object
     			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     			glEnableVertexAttribArray(0);
 
-
-
 		}
 
+		void rotate(char axis, float degs){
+
+			double pi = 3.14159265359; 
+    			float rads = (degs * (pi / 180));
+			incRotationRadians(rads);
+
+			switch(axis) {
+				case 'x'  :
+				      setRotationAxis(glm::vec3(1.0f,0.0f,0.0f));
+			    		  break;
+				case 'y'  :
+				      setRotationAxis(glm::vec3(0.0f,1.0f,0.0f));
+			    		  break;
+				case 'z'  :
+				      setRotationAxis(glm::vec3(0.0f,0.0f,1.0f));
+			    		  break;
+			}
+
+		}
 		void draw(Camera cam, Shader s){
        	glm::mat4 model = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
 	model = glm::translate(model,getPosition());
+	model = glm::rotate(model,getRotationRadians(), getRotationAxis());
+
 	glm::mat4 view = cam.calcView();
        	glm::mat4 projection = cam.calcProjection(); // make sure to initialize matrix to identity matrix first
 
