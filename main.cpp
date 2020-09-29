@@ -3,6 +3,7 @@
 #include <utils/shader.h>
 #include <utils/camera.h>
 #include <utils/object.h>
+#include "btBulletDynamicsCommon.h"
 #include <glm/vec3.hpp> // glm::vec3
 #include <glm/vec4.hpp> // glm::vec4
 #include <glm/mat4x4.hpp> // glm::mat4

@@ -5,13 +5,16 @@ TARGET=bin/app
 
 IDIR=-Iincludes/
 
-LDIR=-Llib/
+INCLUDES += -Iincludes/src
+LDIR=-Llib
 
-LIBS=-lGL -lGLU -lglfw -lX11 -lXxf86vm -lXrandr -lpthread -lXi -ldl
+LIBS=-lGL -lGLU -lglfw -lX11 -lXxf86vm -lXrandr -lpthread -lXi -ldl -lBulletCollision_gmake_x64_release -lBulletDynamics_gmake_x64_release -lLinearMath_gmake_x64_release
+LDDEPS= -lBulletCollision_gmake_x64_release -lBulletDynamics_gmake_x64_release -lLinearMath_gmake_x64_release
+
 
 
 all: 
-	$(CC) main.cpp includes/glad/glad.c -o $(TARGET) $(IDIR) $(LDIR) $(LIBS)
+	$(CC)  main.cpp includes/glad/glad.c $(INCLUDES) -o $(TARGET) $(IDIR) $(LDIR) $(LIBS) $(LDDEPS) 
 
 clean:
 	rm -f $(TARGET)

@@ -1,0 +1,10 @@
+export LD_LIBRARY_PATH=/home/nathan/bullet3/src/Bullet3Common:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/home/nathan/bullet3/src/Bullet3Dynamics:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/home/nathan/bullet3/src/Bullet3Geometry:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/home/nathan/bullet3/src/Bullet3OpenCL:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/home/nathan/bullet3/src/Bullet3OpenCL_clew:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/home/nathan/bullet3/src/BulletCollision:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/home/nathan/bullet3/src/BulletDynamics:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/home/nathan/bullet3/src/BulletInverseDynamics:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/home/nathan/bullet3/src/BulletSoftBody:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/home/nathan/bullet3/src/LinearMath:$LD_LIBRARY_PATH
