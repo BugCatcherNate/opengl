@@ -14,7 +14,7 @@ LDDEPS= -lBulletCollision_gmake_x64_release -lBulletDynamics_gmake_x64_release -
 
 
 all: 
-	$(CC)  main.cpp includes/glad/glad.c $(INCLUDES) -o $(TARGET) $(IDIR) $(LDIR) $(LIBS) $(LDDEPS) 
+	$(CC) -DBT_USE_DOUBLE_PRECISION  main.cpp includes/glad/glad.c $(INCLUDES) -o $(TARGET) $(IDIR) $(LDIR) $(LIBS) $(LDDEPS) 
 
 clean:
 	rm -f $(TARGET)

@@ -20,7 +20,7 @@ class Object
 	public:	
  		unsigned int VBO, VAO, EBO;
 		
-	
+		glm::mat4 rot;	
 		// Constructor
 	    	Object(glm::vec3 pos)
 	    	{
@@ -126,12 +126,12 @@ class Object
 
 		}
 
-		void rotate(char axis, float degs){
+		void rotate(char axis, float rads){
 
-			double pi = 3.14159265359; 
-    			float rads = (degs * (pi / 180));
-			incRotationRadians(rads);
-
+			//double pi = 3.14159265359; 
+    		//	float rads = (degs * (pi / 180));
+		//	incRotationRadians(rads);
+			setRotationRadians(rads);
 			switch(axis) {
 				case 'x'  :
 				      setRotationAxis(glm::vec3(1.0f,0.0f,0.0f));
@@ -145,11 +145,15 @@ class Object
 			}
 
 		}
-		void draw(Camera cam, Shader s){
-       	glm::mat4 model = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
-	model = glm::translate(model,getPosition());
-	model = glm::rotate(model,getRotationRadians(), getRotationAxis());
 
+
+		void draw(Camera cam, Shader s){
+
+       		glm::mat4 model = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
+	model = glm::translate(model,getPosition());
+//	model = glm::rotate(model,getRotationRadians(), getRotationAxis());
+	model = model * rot;
+	//model = glm::rotate(model,rot);
 	glm::mat4 view = cam.calcView();
        	glm::mat4 projection = cam.calcProjection(); // make sure to initialize matrix to identity matrix first
 
