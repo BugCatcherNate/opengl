@@ -21,8 +21,8 @@ const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
 Camera cam = Camera(glm::vec3(0.0f,0.0f,3.0f), SCR_WIDTH, SCR_HEIGHT);
-Object cube = Object(glm::vec3(0.0f,20.0f,0.0f));
-Object cubeTwo = Object(glm::vec3(0.0f,0.0f,0.0f));
+Object cube = Object(glm::vec3(2.0f,50.0f,0.0f));
+Object ground = Object(glm::vec3(0.0f,0.0f,0.0f));
 
 float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
@@ -56,67 +56,10 @@ int main()
 
         //the ground is a cube of side 100 at position y = -56.
         //the sphere will hit it at y = -6, with center at -5
-        {
-                btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(1.), btScalar(0.1), btScalar(1.)));
+  
+	cube.getCollision(collisionShapes, dynamicsWorld, 0.2f);
 
-                collisionShapes.push_back(groundShape);
-
-                btTransform groundTransform;
-                groundTransform.setIdentity();
-                groundTransform.setOrigin(btVector3(0, 0, 0));
-
-                btScalar mass(0.);
-
-                //rigidbody is dynamic if and only if mass is non zero, otherwise static
-                bool isDynamic = (mass != 0.f);
-
-                btVector3 localInertia(0, 0, 0);
-                if (isDynamic)
-                        groundShape->calculateLocalInertia(mass, localInertia);
-
-                //using motionstate is optional, it provides interpolation capabilities, and only synchronizes 'active' objects
-                btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
-                btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, groundShape, localInertia);
-                btRigidBody* body = new btRigidBody(rbInfo);
-
-                //add the body to the dynamics world
-                dynamicsWorld->addRigidBody(body);
-        }
-
-        {
-                //create a dynamic rigidbody
-
-                btCollisionShape* colShape = new btBoxShape(btVector3(3,3,3));
-                //btCollisionShape* colShape = new btSphereShape(btScalar(2.));
-                collisionShapes.push_back(colShape);
-
-                /// Create Dynamic Objects
-                btTransform startTransform;
-                startTransform.setIdentity();
-
-                btScalar mass(2.f);
-
-                //rigidbody is dynamic if and only if mass is non zero, otherwise static
-                bool isDynamic = (mass != 0.f);
-
-                btVector3 localInertia(0, 0, 0);
-                if (isDynamic)
-                        colShape->calculateLocalInertia(mass, localInertia);
-
-                startTransform.setOrigin(btVector3(2, 50, 0));
-
-                //using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
-                btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
-                btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, colShape, localInertia);
-                btRigidBody* body = new btRigidBody(rbInfo);
-
-                dynamicsWorld->addRigidBody(body);
-        }
-
-        /// Do some simulation
-
-        ///-----stepsimulation_start-----
-     
+	ground.getCollision(collisionShapes, dynamicsWorld, 0.0f);     
     // glfw: initialize and configure
     // ------------------------------
     glfwInit();
@@ -153,7 +96,7 @@ int main()
     Shader s("vert.txt","frag.txt"); 
 
     cube.prepare();
-    cubeTwo.prepare();
+    ground.prepare();
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
@@ -167,34 +110,11 @@ int main()
                 dynamicsWorld->stepSimulation(deltaTime, 10);
 
                 //print positions of all objects
-                for (int j = dynamicsWorld->getNumCollisionObjects() - 1; j >= 0; j--)
-                {
-                        btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[j];
-                        btRigidBody* body = btRigidBody::upcast(obj);
-                        btTransform trans;
-                        if (body && body->getMotionState())
-                        {
-                                body->getMotionState()->getWorldTransform(trans);
-                        }
-                        else
-                        {
-                                trans = obj->getWorldTransform();
-                        }
 
-			if (j == 1)
-			{
-		cube.setPosition(glm::vec3(float(trans.getOrigin().getX()), float(trans.getOrigin().getY()), float(trans.getOrigin().getZ())));
-
-		cube.rot = glm::toMat4(glm::quat(trans.getRotation().getW(), trans.getRotation().getX(), trans.getRotation().getY(), trans.getRotation().getZ()));
-
-
-//btVector3 fromGetRotation=quatRotate(trans.getRotation(), btVector3(1,0,0));
-//std::cout<<"getRotation:     "<<fromGetRotation[0]<<"/"<<fromGetRotation[1]<<"/"<<fromGetRotation[2]<<std::endl;
-        ///-----initialization_start-----
-				}  // printf("world pos object %d = %f,%f,%f\n", j, float(trans.getOrigin().getX()), float(trans.getOrigin().getY()), float(trans.getOrigin().getZ()));
-                }
         
 
+		cube.runPhysics(dynamicsWorld);
+		ground.runPhysics(dynamicsWorld);
         ///-----stepsimulation_end-----
 
         //cleanup in the reverse order of creation/initialization
@@ -209,10 +129,9 @@ int main()
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    	cubeTwo.rotate('x',5*deltaTime);
 
 	cube.draw(cam, s);
-	cubeTwo.draw(cam, s);
+	ground.draw(cam, s);
 
 
         // -------------------------------------------------------------------------------

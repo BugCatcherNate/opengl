@@ -1,6 +1,7 @@
 #ifndef OBJECT_H
 #define OBJECT_H
 
+#include "btBulletDynamicsCommon.h"
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <utils/shader.h>
@@ -9,6 +10,7 @@
 #include <glm/gtc/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
 #include <glm/gtc/type_ptr.hpp>
 
+#include <glm/gtx/quaternion.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
 
 class Object
 {
@@ -17,6 +19,7 @@ class Object
 	    	glm::vec3 position;
 		glm::vec3 rotationAxis;
 		float rotationRadians;
+		int physicsIndex;
 	public:	
  		unsigned int VBO, VAO, EBO;
 		
@@ -69,7 +72,63 @@ class Object
 	
 			return rotationRadians;
 		}
+
 	// Methods
+
+	        void runPhysics(btDiscreteDynamicsWorld* dynamicsWorld){
+
+btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[physicsIndex];
+obj->setRestitution(0.9f);
+                        btRigidBody* body = btRigidBody::upcast(obj);
+                        btTransform trans;
+                        if (body && body->getMotionState())
+                        {
+                                body->getMotionState()->getWorldTransform(trans);
+                        }
+                        else
+                        {
+                                trans = obj->getWorldTransform();
+                        }
+
+
+
+	setPosition(glm::vec3(float(trans.getOrigin().getX()), float(trans.getOrigin().getY()), float(trans.getOrigin().getZ())));
+
+		rot = glm::toMat4(glm::quat(trans.getRotation().getW(), trans.getRotation().getX(), trans.getRotation().getY(), trans.getRotation().getZ()));
+
+
+		}	
+
+
+		void getCollision(btAlignedObjectArray<btCollisionShape*> collisionShapes, btDiscreteDynamicsWorld* dynamicsWorld, float objectMass){
+                btCollisionShape* colShape = new btBoxShape(btVector3(3,3,3));
+                //btCollisionShape* colShape = new btSphereShape(btScalar(2.));
+                collisionShapes.push_back(colShape);
+
+                /// Create Dynamic Objects
+                btTransform startTransform;
+                startTransform.setIdentity();
+
+                btScalar mass(objectMass);
+
+                //rigidbody is dynamic if and only if mass is non zero, otherwise static
+                bool isDynamic = (mass != 0.f);
+
+                btVector3 localInertia(0, 0, 0);
+                if (isDynamic)
+                        colShape->calculateLocalInertia(mass, localInertia);
+
+                startTransform.setOrigin(btVector3(position.x, position.y, position.z));
+
+
+ btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
+                btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, colShape, localInertia);
+                btRigidBody* body = new btRigidBody(rbInfo);
+
+                dynamicsWorld->addRigidBody(body);
+ physicsIndex = dynamicsWorld->getNumCollisionObjects() - 1;
+
+		}
 
 		void prepare(){
 	        float vertices[] = {
