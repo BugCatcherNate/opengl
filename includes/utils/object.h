@@ -21,6 +21,7 @@ class Object
 		float rotationRadians;
 		int physicsIndex;
 	public:	
+		Object() {};
  		unsigned int VBO, VAO, EBO;
 		
 		glm::mat4 rot;	
@@ -100,8 +101,8 @@ obj->setRestitution(0.9f);
 		}	
 
 
-		void getCollision(btAlignedObjectArray<btCollisionShape*> collisionShapes, btDiscreteDynamicsWorld* dynamicsWorld, float objectMass){
-                btCollisionShape* colShape = new btBoxShape(btVector3(3,3,3));
+		void getCollision(btAlignedObjectArray<btCollisionShape*> collisionShapes, btDiscreteDynamicsWorld* dynamicsWorld, float objectMass, glm::vec3 scale){
+                btCollisionShape* colShape = new btBoxShape(btVector3(scale.x,scale.y,scale.z));
                 //btCollisionShape* colShape = new btSphereShape(btScalar(2.));
                 collisionShapes.push_back(colShape);
 

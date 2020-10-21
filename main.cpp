@@ -20,15 +20,26 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
-Camera cam = Camera(glm::vec3(0.0f,0.0f,3.0f), SCR_WIDTH, SCR_HEIGHT);
-Object cube = Object(glm::vec3(2.0f,50.0f,0.0f));
+Camera cam = Camera(glm::vec3(0.0f,20.0f,3.0f), SCR_WIDTH, SCR_HEIGHT);
 Object ground = Object(glm::vec3(0.0f,0.0f,0.0f));
 
+int cubes = 50;
 float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
 
 int main()
 {
+
+	Object* objects = new Object[cubes];
+
+
+	    for (int i = 0; i < cubes; i++) {
+		 float x = rand() % 60;
+		 float y = rand() % 60 + 10;
+		 float z = rand() % 60;
+       		 objects[i] = Object(glm::vec3(x,y,z));
+   	 	}
+	    
 
         ///collision configuration contains default setup for memory, collision setup. Advanced users can create their own configuration.
         btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
@@ -57,9 +68,11 @@ int main()
         //the ground is a cube of side 100 at position y = -56.
         //the sphere will hit it at y = -6, with center at -5
   
-	cube.getCollision(collisionShapes, dynamicsWorld, 0.2f);
+for (int i = 0; i < cubes; i++) {
+	objects[i].getCollision(collisionShapes, dynamicsWorld, 0.2f, glm::vec3(3.0f, 3.0f, 3.0f));
+   	 }
 
-	ground.getCollision(collisionShapes, dynamicsWorld, 0.0f);     
+	ground.getCollision(collisionShapes, dynamicsWorld, 0.0f, glm::vec3(500.0f, 1.0f, 500.0f));     
     // glfw: initialize and configure
     // ------------------------------
     glfwInit();
@@ -94,8 +107,10 @@ int main()
     glEnable(GL_DEPTH_TEST);
 
     Shader s("vert.txt","frag.txt"); 
+for (int i = 0; i < cubes; i++) {
+       		 objects[i].prepare();
+   	 	}
 
-    cube.prepare();
     ground.prepare();
     // render loop
     // -----------
@@ -113,7 +128,6 @@ int main()
 
         
 
-		cube.runPhysics(dynamicsWorld);
 		ground.runPhysics(dynamicsWorld);
         ///-----stepsimulation_end-----
 
@@ -129,8 +143,11 @@ int main()
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	for (int i = 0; i < cubes; i++) {
+		 objects[i].runPhysics(dynamicsWorld);
+       		 objects[i].draw(cam,s);
+   	 }
 
-	cube.draw(cam, s);
 	ground.draw(cam, s);
 
 
