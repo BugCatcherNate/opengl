@@ -69,7 +69,7 @@ int main()
         //the sphere will hit it at y = -6, with center at -5
   
 for (int i = 0; i < cubes; i++) {
-	objects[i].getCollision(collisionShapes, dynamicsWorld, 0.2f, glm::vec3(3.0f, 3.0f, 3.0f));
+	objects[i].getCollision(collisionShapes, dynamicsWorld, 0.2f);
    	 }
 
 	ground.getCollision(collisionShapes, dynamicsWorld, 0.0f, glm::vec3(500.0f, 1.0f, 500.0f));     

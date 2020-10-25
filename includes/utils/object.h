@@ -23,6 +23,8 @@ class Object
 	public:	
 		Object() {};
  		unsigned int VBO, VAO, EBO;
+
+
 		
 		glm::mat4 rot;	
 		// Constructor
@@ -101,8 +103,10 @@ obj->setRestitution(0.9f);
 		}	
 
 
-		void getCollision(btAlignedObjectArray<btCollisionShape*> collisionShapes, btDiscreteDynamicsWorld* dynamicsWorld, float objectMass, glm::vec3 scale){
-                btCollisionShape* colShape = new btBoxShape(btVector3(scale.x,scale.y,scale.z));
+		void getCollision(btAlignedObjectArray<btCollisionShape*> collisionShapes, btDiscreteDynamicsWorld* dynamicsWorld, float objectMass, glm::vec3 scale = glm::vec3(abs(maxx-minx)/2,abs(maxy-miny)/2,abs(maxz-minz)/2)){
+
+	        
+                btCollisionShape* colShape = new btBoxShape(btVector3(scale.x, scale.y, scale.z));
                 //btCollisionShape* colShape = new btSphereShape(btScalar(2.));
                 collisionShapes.push_back(colShape);
 
@@ -130,6 +134,86 @@ obj->setRestitution(0.9f);
  physicsIndex = dynamicsWorld->getNumCollisionObjects() - 1;
 
 		}
+
+		void makeCollider(float vertices[]){
+
+		 minx = 10000.0f;
+		 miny = 10000.0f;
+		 minz = 10000.0f;
+		 maxx = -10000.0f;
+		 maxy = -10000.0f;
+		 maxz = -10000.0f;
+
+		int len = sizeof(vertices)/sizeof(vertices[0]);
+
+	        for( int i = 1; i <4; i++){
+
+		 switch(i) {
+			case 1:
+				for (int j=i; j < len; j+=3){
+					if(vertices[j] < minx){
+
+						minx = vertices[j];
+
+					}
+
+					if(vertices[j] > maxx){
+
+						maxx = vertices[j];
+
+					}
+
+
+				}
+			case 2:
+				for (int j=i; j < len; j+=3){
+					if(vertices[j] < miny){
+
+						miny = vertices[j];
+
+					}
+
+					if(vertices[j] > maxy){
+
+						maxy = vertices[j];
+
+					}
+
+
+				}
+			case 3:
+				for (int j=i; j < len; j+=3){
+					if(vertices[j] < minz){
+
+						minz = vertices[j];
+
+					}
+
+					if(vertices[j] > maxz){
+
+						maxz = vertices[j];
+
+					}
+
+
+				}
+
+
+
+					}
+
+
+
+
+
+		 }
+		
+
+
+		}
+
+
+		
 
 		void prepare(){
 	        float vertices[] = {
@@ -175,6 +259,8 @@ obj->setRestitution(0.9f);
         -0.5f,  0.5f,  0.5f,  
         -0.5f,  0.5f, -0.5f 
     };
+
+		makeCollider(vertices);
 
     			glGenVertexArrays(1, &VAO);
     			glGenBuffers(1, &VBO);
