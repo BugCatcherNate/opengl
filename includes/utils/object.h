@@ -23,17 +23,19 @@ class Object
 	public:	
 		Object() {};
  		unsigned int VBO, VAO, EBO;
-
+	
 
 		
 		glm::mat4 rot;	
+
+
 		// Constructor
 	    	Object(glm::vec3 pos)
 	    	{
 		position = pos;
 		rotationRadians = 0.0f;
 		rotationAxis = glm::vec3(1.0f, 1.0f, 1.0f);
-	
+				
 	    	}
 	
 	    	// getters and setters
@@ -103,9 +105,11 @@ obj->setRestitution(0.9f);
 		}	
 
 
-		void getCollision(btAlignedObjectArray<btCollisionShape*> collisionShapes, btDiscreteDynamicsWorld* dynamicsWorld, float objectMass, glm::vec3 scale = glm::vec3(abs(maxx-minx)/2,abs(maxy-miny)/2,abs(maxz-minz)/2)){
+		void getCollision(btAlignedObjectArray<btCollisionShape*> collisionShapes, btDiscreteDynamicsWorld* dynamicsWorld, float objectMass, glm::vec3 scale = glm::vec3(0,0,0)  ){
+		if(scale == glm::vec3(0,0,0)){
 
-	        
+		scale = makeCollider();
+		}
                 btCollisionShape* colShape = new btBoxShape(btVector3(scale.x, scale.y, scale.z));
                 //btCollisionShape* colShape = new btSphereShape(btScalar(2.));
                 collisionShapes.push_back(colShape);
@@ -135,14 +139,58 @@ obj->setRestitution(0.9f);
 
 		}
 
-		void makeCollider(float vertices[]){
+		glm::vec3 makeCollider(){
+			float vertices[] = {
+        -0.5f, -0.5f, -0.5f,  
+         0.5f, -0.5f, -0.5f,  
+         0.5f,  0.5f, -0.5f,  
+         0.5f,  0.5f, -0.5f,  
+        -0.5f,  0.5f, -0.5f,  
+        -0.5f, -0.5f, -0.5f,  
 
-		 minx = 10000.0f;
-		 miny = 10000.0f;
-		 minz = 10000.0f;
-		 maxx = -10000.0f;
-		 maxy = -10000.0f;
-		 maxz = -10000.0f;
+        -0.5f, -0.5f,  0.5f,  
+         0.5f, -0.5f,  0.5f,  
+         0.5f,  0.5f,  0.5f,  
+         0.5f,  0.5f,  0.5f,  
+        -0.5f,  0.5f,  0.5f,  
+        -0.5f, -0.5f,  0.5f,  
+
+        -0.5f,  0.5f,  0.5f,  
+        -0.5f,  0.5f, -0.5f,  
+        -0.5f, -0.5f, -0.5f,  
+        -0.5f, -0.5f, -0.5f,  
+        -0.5f, -0.5f,  0.5f,  
+        -0.5f,  0.5f,  0.5f,  
+
+         0.5f,  0.5f,  0.5f,  
+         0.5f,  0.5f, -0.5f,  
+         0.5f, -0.5f, -0.5f,  
+         0.5f, -0.5f, -0.5f,  
+         0.5f, -0.5f,  0.5f,  
+         0.5f,  0.5f,  0.5f,  
+
+        -0.5f, -0.5f, -0.5f,  
+         0.5f, -0.5f, -0.5f,  
+         0.5f, -0.5f,  0.5f,  
+         0.5f, -0.5f,  0.5f,  
+        -0.5f, -0.5f,  0.5f,  
+        -0.5f, -0.5f, -0.5f,  
+
+        -0.5f,  0.5f, -0.5f,  
+         0.5f,  0.5f, -0.5f,  
+         0.5f,  0.5f,  0.5f,  
+         0.5f,  0.5f,  0.5f,  
+        -0.5f,  0.5f,  0.5f,  
+        -0.5f,  0.5f, -0.5f 
+    };
+
+
+		 float minx = 10000.0f;
+		 float miny = 10000.0f;
+		 float minz = 10000.0f;
+		 float maxx = -10000.0f;
+		 float maxy = -10000.0f;
+		 float maxz = -10000.0f;
 
 		int len = sizeof(vertices)/sizeof(vertices[0]);
 
@@ -208,7 +256,7 @@ obj->setRestitution(0.9f);
 
 		 }
 		
-
+	return glm::vec3(abs(maxx-minx)/2.0f,abs(maxy-miny)/2.0f,abs(maxz-minz)/2.0f);
 
 		}
 
@@ -216,7 +264,7 @@ obj->setRestitution(0.9f);
 		
 
 		void prepare(){
-	        float vertices[] = {
+	       			float verts[] = {
         -0.5f, -0.5f, -0.5f,  
          0.5f, -0.5f, -0.5f,  
          0.5f,  0.5f, -0.5f,  
@@ -260,13 +308,12 @@ obj->setRestitution(0.9f);
         -0.5f,  0.5f, -0.5f 
     };
 
-		makeCollider(vertices);
 
     			glGenVertexArrays(1, &VAO);
     			glGenBuffers(1, &VBO);
     			glBindVertexArray(VAO);
     			glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    			glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    			glBufferData(GL_ARRAY_BUFFER, sizeof(verts), verts, GL_STATIC_DRAW);
     			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     			glEnableVertexAttribArray(0);
 
