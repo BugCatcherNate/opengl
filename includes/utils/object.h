@@ -20,11 +20,13 @@ class Object
 		glm::vec3 rotationAxis;
 		float rotationRadians;
 		int physicsIndex;
+		float verticiessize;
 	public:	
 		Object() {};
  		unsigned int VBO, VAO, EBO;
-	
+		glm::vec3 bounds;	
 
+		std::vector<glm::vec3> verts;
 		
 		glm::mat4 rot;	
 
@@ -79,6 +81,101 @@ class Object
 		}
 
 	// Methods
+	
+bool loadOBJ(
+	const char * path, 
+	std::vector<glm::vec3> & out_vertices, 
+	std::vector<glm::vec2> & out_uvs,
+	std::vector<glm::vec3> & out_normals
+){
+
+	std::vector<unsigned int> vertexIndices, uvIndices, normalIndices;
+	std::vector<glm::vec3> temp_vertices; 
+	std::vector<glm::vec2> temp_uvs;
+	std::vector<glm::vec3> temp_normals;
+
+
+	FILE * file = fopen(path, "r");
+	if( file == NULL ){
+		printf("Impossible to open the file ! Are you in the right path ? See Tutorial 1 for details\n");
+		getchar();
+		exit(false);
+		return false;
+	}
+
+	while( file ){
+
+		char lineHeader[128];
+		// read the first word of the line
+		int res = fscanf(file, "%s", lineHeader);
+		if (res == EOF)
+			break; // EOF = End Of File. Quit the loop.
+
+		// else : parse lineHeader
+		
+		if ( strcmp( lineHeader, "v" ) == 0 ){
+			glm::vec3 vertex;
+			fscanf(file, "%f %f %f\n", &vertex.x, &vertex.y, &vertex.z );
+			temp_vertices.push_back(vertex);
+		}else if ( strcmp( lineHeader, "vt" ) == 0 ){
+			glm::vec2 uv;
+			fscanf(file, "%f %f\n", &uv.x, &uv.y );
+			uv.y = -uv.y; // Invert V coordinate since we will only use DDS texture, which are inverted. Remove if you want to use TGA or BMP loaders.
+			temp_uvs.push_back(uv);
+		}else if ( strcmp( lineHeader, "vn" ) == 0 ){
+			glm::vec3 normal;
+			fscanf(file, "%f %f %f\n", &normal.x, &normal.y, &normal.z );
+			temp_normals.push_back(normal);
+		}else if ( strcmp( lineHeader, "f" ) == 0 ){
+			std::string vertex1, vertex2, vertex3;
+			unsigned int vertexIndex[3], uvIndex[3], normalIndex[3];
+			int matches = fscanf(file, "%d/%d/%d %d/%d/%d %d/%d/%d\n", &vertexIndex[0], &uvIndex[0], &normalIndex[0], &vertexIndex[1], &uvIndex[1], &normalIndex[1], &vertexIndex[2], &uvIndex[2], &normalIndex[2] );
+		//	if (matches != 9){
+		//		printf("File can't be read by our simple parser :-( Try exporting with other options\n");
+		//		fclose(file);
+		//		return false;
+		//	}
+			vertexIndices.push_back(vertexIndex[0]);
+			vertexIndices.push_back(vertexIndex[1]);
+			vertexIndices.push_back(vertexIndex[2]);
+			uvIndices    .push_back(uvIndex[0]);
+			uvIndices    .push_back(uvIndex[1]);
+			uvIndices    .push_back(uvIndex[2]);
+			normalIndices.push_back(normalIndex[0]);
+			normalIndices.push_back(normalIndex[1]);
+			normalIndices.push_back(normalIndex[2]);
+		}else{
+			// Probably a comment, eat up the rest of the line
+			char stupidBuffer[1000];
+			fgets(stupidBuffer, 1000, file);
+		}
+
+	}
+
+	// For each vertex of each triangle
+	for( unsigned int i=0; i<vertexIndices.size(); i++ ){
+
+		// Get the indices of its attributes
+		unsigned int vertexIndex = vertexIndices[i];
+		unsigned int uvIndex = uvIndices[i];
+		unsigned int normalIndex = normalIndices[i];
+		
+		// Get the attributes thanks to the index
+		glm::vec3 vertex = temp_vertices[ vertexIndex-1 ];
+		glm::vec2 uv = temp_uvs[ uvIndex-1 ];
+		glm::vec3 normal = temp_normals[ normalIndex-1 ];
+		
+		// Put the attributes in buffers
+		out_vertices.push_back(vertex);
+		out_uvs     .push_back(uv);
+		out_normals .push_back(normal);
+	
+	}
+	fclose(file);
+	return true;
+}
+
+	
 
 	        void runPhysics(btDiscreteDynamicsWorld* dynamicsWorld){
 
@@ -105,10 +202,10 @@ obj->setRestitution(0.9f);
 		}	
 
 
-		void getCollision(btAlignedObjectArray<btCollisionShape*> collisionShapes, btDiscreteDynamicsWorld* dynamicsWorld, float objectMass, glm::vec3 scale = glm::vec3(0,0,0)  ){
+		void getCollision(btAlignedObjectArray<btCollisionShape*> collisionShapes, btDiscreteDynamicsWorld* dynamicsWorld, float objectMass, glm::vec3 scale = glm::vec3(0,0,0)){
 		if(scale == glm::vec3(0,0,0)){
 
-		scale = makeCollider();
+		scale = bounds;
 		}
                 btCollisionShape* colShape = new btBoxShape(btVector3(scale.x, scale.y, scale.z));
                 //btCollisionShape* colShape = new btSphereShape(btScalar(2.));
@@ -140,50 +237,7 @@ obj->setRestitution(0.9f);
 		}
 
 		glm::vec3 makeCollider(){
-			float vertices[] = {
-        -1.5f, -1.5f, -1.5f,  
-         1.5f, -1.5f, -1.5f,  
-         1.5f,  1.5f, -1.5f,  
-         1.5f,  1.5f, -1.5f,  
-        -1.5f,  1.5f, -1.5f,  
-        -1.5f, -1.5f, -1.5f,  
-
-        -1.5f, -1.5f,  1.5f,  
-         1.5f, -1.5f,  1.5f,  
-         1.5f,  1.5f,  1.5f,  
-         1.5f,  1.5f,  1.5f,  
-        -1.5f,  1.5f,  1.5f,  
-        -1.5f, -1.5f,  1.5f,  
-
-        -1.5f,  1.5f,  1.5f,  
-        -1.5f,  1.5f, -1.5f,  
-        -1.5f, -1.5f, -1.5f,  
-        -1.5f, -1.5f, -1.5f,  
-        -1.5f, -1.5f,  1.5f,  
-        -1.5f,  1.5f,  1.5f,  
-
-         1.5f,  1.5f,  1.5f,  
-         1.5f,  1.5f, -1.5f,  
-         1.5f, -1.5f, -1.5f,  
-         1.5f, -1.5f, -1.5f,  
-         1.5f, -1.5f,  1.5f,  
-         1.5f,  1.5f,  1.5f,  
-
-        -1.5f, -1.5f, -1.5f,  
-         1.5f, -1.5f, -1.5f,  
-         1.5f, -1.5f,  1.5f,  
-         1.5f, -1.5f,  1.5f,  
-        -1.5f, -1.5f,  1.5f,  
-        -1.5f, -1.5f, -1.5f,  
-
-        -1.5f,  1.5f, -1.5f,  
-         1.5f,  1.5f, -1.5f,  
-         1.5f,  1.5f,  1.5f,  
-         1.5f,  1.5f,  1.5f,  
-        -1.5f,  1.5f,  1.5f,  
-        -1.5f,  1.5f, -1.5f 
-    };
-
+	
 
 		 float minx = 10000.0f;
 		 float miny = 10000.0f;
@@ -191,130 +245,72 @@ obj->setRestitution(0.9f);
 		 float maxx = -10000.0f;
 		 float maxy = -10000.0f;
 		 float maxz = -10000.0f;
+	
 
-		int len = sizeof(vertices)/sizeof(vertices[0]);
+		for(auto& i: verts) { 
 
-	        for( int i = 1; i <4; i++){
+					if(i.x < minx){
 
-		 switch(i) {
-			case 1:
-				for (int j=i; j < len; j+=3){
-					if(vertices[j] < minx){
-
-						minx = vertices[j];
+						minx = i.x;
 
 					}
 
-					if(vertices[j] > maxx){
+					if(i.x > maxx){
 
-						maxx = vertices[j];
+						maxx = i.x;
 
 					}
 
 
-				}
-			case 2:
-				for (int j=i; j < len; j+=3){
-					if(vertices[j] < miny){
+					if(i.y < miny){
 
-						miny = vertices[j];
+						miny = i.y;
 
 					}
 
-					if(vertices[j] > maxy){
+					if(i.y > maxy){
 
-						maxy = vertices[j];
+						maxy = i.y;
 
 					}
 
 
-				}
-			case 3:
-				for (int j=i; j < len; j+=3){
-					if(vertices[j] < minz){
+					if(i.z < minz){
 
-						minz = vertices[j];
+						minz = i.z;
 
 					}
 
-					if(vertices[j] > maxz){
+					if(i.z > maxz){
 
-						maxz = vertices[j];
+						maxz = i.z;
 
 					}
 
 
 				}
+	std::cout<<maxx<<minx<<maxy<<miny<<maxz<<minz<<std::endl;
 
-
-
-					}
-
-
-
-
-
-		 }
-		
+	
 	return glm::vec3(abs(maxx-minx)/2.0f,abs(maxy-miny)/2.0f,abs(maxz-minz)/2.0f);
 
 		}
-
-
-		
+	
 
 		void prepare(){
-	       			float verts[] = {
-        -1.5f, -1.5f, -1.5f,  
-         1.5f, -1.5f, -1.5f,  
-         1.5f,  1.5f, -1.5f,  
-         1.5f,  1.5f, -1.5f,  
-        -1.5f,  1.5f, -1.5f,  
-        -1.5f, -1.5f, -1.5f,  
 
-        -1.5f, -1.5f,  1.5f,  
-         1.5f, -1.5f,  1.5f,  
-         1.5f,  1.5f,  1.5f,  
-         1.5f,  1.5f,  1.5f,  
-        -1.5f,  1.5f,  1.5f,  
-        -1.5f, -1.5f,  1.5f,  
-
-        -1.5f,  1.5f,  1.5f,  
-        -1.5f,  1.5f, -1.5f,  
-        -1.5f, -1.5f, -1.5f,  
-        -1.5f, -1.5f, -1.5f,  
-        -1.5f, -1.5f,  1.5f,  
-        -1.5f,  1.5f,  1.5f,  
-
-         1.5f,  1.5f,  1.5f,  
-         1.5f,  1.5f, -1.5f,  
-         1.5f, -1.5f, -1.5f,  
-         1.5f, -1.5f, -1.5f,  
-         1.5f, -1.5f,  1.5f,  
-         1.5f,  1.5f,  1.5f,  
-
-        -1.5f, -1.5f, -1.5f,  
-         1.5f, -1.5f, -1.5f,  
-         1.5f, -1.5f,  1.5f,  
-         1.5f, -1.5f,  1.5f,  
-        -1.5f, -1.5f,  1.5f,  
-        -1.5f, -1.5f, -1.5f,  
-
-        -1.5f,  1.5f, -1.5f,  
-         1.5f,  1.5f, -1.5f,  
-         1.5f,  1.5f,  1.5f,  
-         1.5f,  1.5f,  1.5f,  
-        -1.5f,  1.5f,  1.5f,  
-        -1.5f,  1.5f, -1.5f 
-    };
-
+	std::vector<glm::vec2> uvs;
+	std::vector<glm::vec3> normals; // Won't be used at the moment.
+	bool res = loadOBJ("pyramid.obj", verts, uvs, normals);	
+	bounds = makeCollider();
+	verticiessize = verts.size();
 
     			glGenVertexArrays(1, &VAO);
     			glGenBuffers(1, &VBO);
     			glBindVertexArray(VAO);
     			glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    			glBufferData(GL_ARRAY_BUFFER, sizeof(verts), verts, GL_STATIC_DRAW);
-    			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    			glBufferData(GL_ARRAY_BUFFER, verts.size() * sizeof(glm::vec3), &verts[0], GL_STATIC_DRAW);
+    			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
     			glEnableVertexAttribArray(0);
 
 		}
@@ -362,7 +358,7 @@ obj->setRestitution(0.9f);
 
 
         	glBindVertexArray(VAO); 
-        	glDrawArrays(GL_TRIANGLES, 0, 36);
+        	glDrawArrays(GL_TRIANGLES, 0, verticiessize);
 
 
 		}
