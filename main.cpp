@@ -67,12 +67,7 @@ int main()
 
         //the ground is a cube of side 100 at position y = -56.
         //the sphere will hit it at y = -6, with center at -5
-  
-for (int i = 0; i < cubes; i++) {
-	objects[i].getCollision(collisionShapes, dynamicsWorld, 0.2f);
-   	 }
-
-	ground.getCollision(collisionShapes, dynamicsWorld, 0.0f, glm::vec3(500.0f, 1.0f, 500.0f));     
+     
     // glfw: initialize and configure
     // ------------------------------
     glfwInit();
@@ -107,11 +102,17 @@ for (int i = 0; i < cubes; i++) {
     glEnable(GL_DEPTH_TEST);
 
     Shader s("vert.txt","frag.txt"); 
-for (int i = 0; i < cubes; i++) {
+ for (int i = 0; i < cubes; i++) {
        		 objects[i].prepare();
    	 	}
 
     ground.prepare();
+ 
+for (int i = 0; i < cubes; i++) {
+	objects[i].getCollision(collisionShapes, dynamicsWorld, 0.2f);
+   	 }
+
+	ground.getCollision(collisionShapes, dynamicsWorld, 0.0f, glm::vec3(500.0f, 1.0f, 500.0f));
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))

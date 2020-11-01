@@ -21,12 +21,13 @@ class Object
 		float rotationRadians;
 		int physicsIndex;
 		float verticiessize;
+
+		std::vector<glm::vec3> verts;
+
+		glm::vec3 bounds;
 	public:	
 		Object() {};
  		unsigned int VBO, VAO, EBO;
-		glm::vec3 bounds;	
-
-		std::vector<glm::vec3> verts;
 		
 		glm::mat4 rot;	
 
@@ -203,13 +204,17 @@ obj->setRestitution(0.9f);
 
 
 		void getCollision(btAlignedObjectArray<btCollisionShape*> collisionShapes, btDiscreteDynamicsWorld* dynamicsWorld, float objectMass, glm::vec3 scale = glm::vec3(0,0,0)){
+			
 		if(scale == glm::vec3(0,0,0)){
+		
+			scale = bounds;	
+                		}
+		
+btCollisionShape* colShape = new btBoxShape(btVector3(scale.x, scale.y, scale.z));
 
-		scale = bounds;
-		}
-                btCollisionShape* colShape = new btBoxShape(btVector3(scale.x, scale.y, scale.z));
-                //btCollisionShape* colShape = new btSphereShape(btScalar(2.));
                 collisionShapes.push_back(colShape);
+
+                //btCollisionShape* colShape = new btSphereShape(btScalar(2.));
 
                 /// Create Dynamic Objects
                 btTransform startTransform;
@@ -247,7 +252,7 @@ obj->setRestitution(0.9f);
 		 float maxz = -10000.0f;
 	
 
-		for(auto& i: verts) { 
+		for(auto& i: this->verts) { 
 
 					if(i.x < minx){
 
@@ -289,7 +294,6 @@ obj->setRestitution(0.9f);
 
 
 				}
-	std::cout<<maxx<<minx<<maxy<<miny<<maxz<<minz<<std::endl;
 
 	
 	return glm::vec3(abs(maxx-minx)/2.0f,abs(maxy-miny)/2.0f,abs(maxz-minz)/2.0f);
@@ -298,10 +302,11 @@ obj->setRestitution(0.9f);
 	
 
 		void prepare(){
-
+	std::vector<glm::vec3> vertes;
 	std::vector<glm::vec2> uvs;
 	std::vector<glm::vec3> normals; // Won't be used at the moment.
-	bool res = loadOBJ("pyramid.obj", verts, uvs, normals);	
+	bool res = loadOBJ("pyramid.obj", vertes, uvs, normals);	
+	verts = vertes;
 	bounds = makeCollider();
 	verticiessize = verts.size();
 
