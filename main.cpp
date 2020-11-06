@@ -1,6 +1,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <utils/shader.h>
+#include <utils/physics.h>
 #include <utils/camera.h>
 #include <utils/object.h>
 #include "btBulletDynamicsCommon.h"
@@ -32,6 +33,7 @@ int main()
 
 	Object* objects = new Object[cubes];
 
+	Physics* physics = new Physics();
 
 	    for (int i = 0; i < cubes; i++) {
 		 float x = rand() % 60;
@@ -40,35 +42,7 @@ int main()
        		 objects[i] = Object(glm::vec3(x,y,z));
    	 	}
 	    
-
-        ///collision configuration contains default setup for memory, collision setup. Advanced users can create their own configuration.
-        btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
-
-        ///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
-        btCollisionDispatcher* dispatcher = new btCollisionDispatcher(collisionConfiguration);
-
-        ///btDbvtBroadphase is a good general purpose broadphase. You can also try out btAxis3Sweep.
-        btBroadphaseInterface* overlappingPairCache = new btDbvtBroadphase();
-
-        ///the default constraint solver. For parallel processing you can use a different solver (see Extras/BulletMultiThreaded)
-        btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
-
-        btDiscreteDynamicsWorld* dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
-
-        dynamicsWorld->setGravity(btVector3(0, -10, 0));
-
-        ///-----initialization_end-----
-
-        //keep track of the shapes, we release memory at exit.
-        //make sure to re-use collision shapes among rigid bodies whenever possible!
-        btAlignedObjectArray<btCollisionShape*> collisionShapes;
-
-        ///create a few basic rigid bodies
-
-        //the ground is a cube of side 100 at position y = -56.
-        //the sphere will hit it at y = -6, with center at -5
-     
-    // glfw: initialize and configure
+            // glfw: initialize and configure
     // ------------------------------
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -109,10 +83,10 @@ int main()
     ground.prepare();
  
 for (int i = 0; i < cubes; i++) {
-	objects[i].getCollision(collisionShapes, dynamicsWorld, 0.2f);
+	objects[i].getCollision(physics->collisionShapes, physics->dynamicsWorld, 0.2f);
    	 }
 
-	ground.getCollision(collisionShapes, dynamicsWorld, 0.0f, glm::vec3(500.0f, 1.0f, 500.0f));
+	ground.getCollision(physics->collisionShapes, physics->dynamicsWorld, 0.0f, glm::vec3(500.0f, 1.0f, 500.0f));
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
@@ -123,13 +97,13 @@ for (int i = 0; i < cubes; i++) {
         // input
         // -----
        
-                dynamicsWorld->stepSimulation(deltaTime, 10);
+                physics->dynamicsWorld->stepSimulation(deltaTime, 10);
 
                 //print positions of all objects
 
         
 
-		ground.runPhysics(dynamicsWorld);
+		ground.runPhysics(physics->dynamicsWorld);
         ///-----stepsimulation_end-----
 
         //cleanup in the reverse order of creation/initialization
@@ -145,7 +119,7 @@ for (int i = 0; i < cubes; i++) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	for (int i = 0; i < cubes; i++) {
-		 objects[i].runPhysics(dynamicsWorld);
+		 objects[i].runPhysics(physics->dynamicsWorld);
        		 objects[i].draw(cam,s);
    	 }
 
@@ -156,43 +130,8 @@ for (int i = 0; i < cubes; i++) {
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
- for (int i = dynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--)
-        {
-                btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[i];
-                btRigidBody* body = btRigidBody::upcast(obj);
-                if (body && body->getMotionState())
-                {
-                        delete body->getMotionState();
-                }
-                dynamicsWorld->removeCollisionObject(obj);
-                delete obj;
-        }
-
-        //delete collision shapes
-        for (int j = 0; j < collisionShapes.size(); j++)
-        {
-                btCollisionShape* shape = collisionShapes[j];
-                collisionShapes[j] = 0;
-                delete shape;
-        }
-
-        //delete dynamics world
-        delete dynamicsWorld;
-
-        //delete solver
-        delete solver;
-
-        //delete broadphase
-        delete overlappingPairCache;
-
-        //delete dispatcher
-        delete dispatcher;
-
-        delete collisionConfiguration;
-
-        //next line is optional: it will be cleared by the destructor when the array goes out of scope
-        collisionShapes.clear();
-
+ 
+ physics->cleanUp();
 
 
     // glfw: terminate, clearing all previously allocated GLFW resources.
