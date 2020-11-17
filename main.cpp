@@ -3,6 +3,7 @@
 #include <utils/shader.h>
 #include <utils/physics.h>
 #include <utils/camera.h>
+#include <utils/testball.h>
 #include <utils/object.h>
 #include <glm/vec3.hpp> // glm::vec3
 #include <glm/vec4.hpp> // glm::vec4
@@ -21,7 +22,9 @@ const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
 Camera cam = Camera(glm::vec3(0.0f,20.0f,3.0f), SCR_WIDTH, SCR_HEIGHT);
-Object ground = Object(glm::vec3(0.0f,0.0f,0.0f));
+TestBall ground = TestBall(glm::vec3(0.0f,0.0f,0.0f));
+
+
 
 int cubes = 50;
 float deltaTime = 0.0f;	// time between current frame and last frame
@@ -30,7 +33,7 @@ float lastFrame = 0.0f;
 int main()
 {
 
-	Object* objects = new Object[cubes];
+	TestBall* objects = new TestBall[cubes];
 
 	Physics* physics = new Physics();
 
@@ -38,7 +41,7 @@ int main()
 		 float x = rand() % 60;
 		 float y = rand() % 60 + 10;
 		 float z = rand() % 60;
-       		 objects[i] = Object(glm::vec3(x,y,z));
+       		 objects[i] = TestBall(glm::vec3(x,y,z));
    	 	}
 	    
             // glfw: initialize and configure

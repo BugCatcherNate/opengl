@@ -2,6 +2,7 @@
 #define OBJECT_H
 
 #include "btBulletDynamicsCommon.h"
+#include <string>
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <utils/shader.h>
@@ -13,6 +14,7 @@
 #include <stb_image.h>
 
 #include <glm/gtx/quaternion.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
+using namespace std;
 
 class Object
 {
@@ -34,7 +36,7 @@ class Object
 		
 		glm::mat4 rot;	
 
-
+		string texturePath;
 		// Constructor
 	    	Object(glm::vec3 pos)
 	    	{
@@ -49,7 +51,11 @@ class Object
 	
 			position = pos;
 		}
-			
+		
+		void setTexturePath(string path){
+	
+			texturePath = path;
+		}
 		void incPosition(glm::vec3 inc){
 	
 			position += inc;
@@ -327,7 +333,7 @@ btCollisionShape* colShape = new btBoxShape(btVector3(scale.x, scale.y, scale.z)
     // load image, create texture and generate mipmaps
     int width, height, nrChannels;
     // The FileSystem::getPath(...) is part of the GitHub repository so we can find files on any IDE/platform; replace it with your own image path.
-    unsigned char *data = stbi_load("/home/nathan/Desktop/opengl/resources/textures/green.png", &width, &height, &nrChannels, 0);
+    unsigned char *data = stbi_load(texturePath.c_str(), &width, &height, &nrChannels, 0);
     if (data)
     {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
