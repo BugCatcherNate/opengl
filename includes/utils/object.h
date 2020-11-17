@@ -9,6 +9,8 @@
 #include <math.h>
 #include <glm/gtc/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
 #include <glm/gtc/type_ptr.hpp>
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
 
 #include <glm/gtx/quaternion.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
 
@@ -23,6 +25,7 @@ class Object
 		float verticiessize;
 
 		std::vector<glm::vec3> verts;
+		std::vector<glm::vec3> uves;
 
 		glm::vec3 bounds;
 	public:	
@@ -310,6 +313,32 @@ btCollisionShape* colShape = new btBoxShape(btVector3(scale.x, scale.y, scale.z)
 	bounds = makeCollider();
 	verticiessize = verts.size();
 
+	unsigned int texture1;
+    // texture 1
+    // ---------
+    glGenTextures(1, &texture1);
+    glBindTexture(GL_TEXTURE_2D, texture1);
+     // set the texture wrapping parameters
+ //   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
+  //  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    // set texture filtering parameters
+   // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    // load image, create texture and generate mipmaps
+    int width, height, nrChannels;
+    // The FileSystem::getPath(...) is part of the GitHub repository so we can find files on any IDE/platform; replace it with your own image path.
+    unsigned char *data = stbi_load("/home/nathan/Desktop/opengl/resources/textures/green.png", &width, &height, &nrChannels, 0);
+    if (data)
+    {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else
+    {
+        std::cout << "Failed to load texture" << std::endl;
+    }
+    stbi_image_free(data);
+glActiveTexture(GL_TEXTURE0);
     			glGenVertexArrays(1, &VAO);
     			glGenBuffers(1, &VBO);
     			glBindVertexArray(VAO);
@@ -317,6 +346,23 @@ btCollisionShape* colShape = new btBoxShape(btVector3(scale.x, scale.y, scale.z)
     			glBufferData(GL_ARRAY_BUFFER, verts.size() * sizeof(glm::vec3), &verts[0], GL_STATIC_DRAW);
     			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
     			glEnableVertexAttribArray(0);
+
+				GLuint uvbuffer;
+	glGenBuffers(1, &uvbuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
+	glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(glm::vec2), &uvs[0], GL_STATIC_DRAW);
+	
+	glEnableVertexAttribArray(1);
+		glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
+		glVertexAttribPointer(
+			1,                                // attribute
+			2,                                // size
+			GL_FLOAT,                         // type
+			GL_FALSE,                         // normalized?
+			0,                                // stride
+			(void*)0                          // array buffer offset
+		);
+
 
 		}
 
@@ -359,8 +405,6 @@ btCollisionShape* colShape = new btBoxShape(btVector3(scale.x, scale.y, scale.z)
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
 
         s.setMat4("projection", projection);
-
-
 
         	glBindVertexArray(VAO); 
         	glDrawArrays(GL_TRIANGLES, 0, verticiessize);
