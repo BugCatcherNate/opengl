@@ -3,7 +3,7 @@
 #include <utils/shader.h>
 #include <utils/physics.h>
 #include <utils/camera.h>
-#include <utils/testball.h>
+#include <utils/tree.h>
 #include <utils/object.h>
 #include <glm/vec3.hpp> // glm::vec3
 #include <glm/vec4.hpp> // glm::vec4
@@ -21,8 +21,8 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
-Camera cam = Camera(glm::vec3(0.0f,20.0f,3.0f), SCR_WIDTH, SCR_HEIGHT);
-TestBall ground = TestBall(glm::vec3(0.0f,0.0f,0.0f));
+Camera cam = Camera(glm::vec3(0.0f,0.0f,3.0f), SCR_WIDTH, SCR_HEIGHT);
+Tree ground = Tree(glm::vec3(0.0f,0.0f,0.0f));
 
 
 
@@ -33,15 +33,15 @@ float lastFrame = 0.0f;
 int main()
 {
 
-	TestBall* objects = new TestBall[cubes];
+	Tree* objects = new Tree[cubes];
 
 	Physics* physics = new Physics();
 
 	    for (int i = 0; i < cubes; i++) {
-		 float x = rand() % 60;
-		 float y = rand() % 60 + 10;
-		 float z = rand() % 60;
-       		 objects[i] = TestBall(glm::vec3(x,y,z));
+		 float x = rand() % 100;
+		 float y = 0.0f;
+		 float z = rand() % 100;
+       		 objects[i] = Tree(glm::vec3(x,y,z));
    	 	}
 	    
             // glfw: initialize and configure
@@ -85,7 +85,7 @@ int main()
     ground.prepare();
  
 for (int i = 0; i < cubes; i++) {
-	objects[i].getCollision(physics->collisionShapes, physics->dynamicsWorld, 0.2f);
+	objects[i].getCollision(physics->collisionShapes, physics->dynamicsWorld, 0.0f);
    	 }
 
 	ground.getCollision(physics->collisionShapes, physics->dynamicsWorld, 0.0f, glm::vec3(500.0f, 1.0f, 500.0f));

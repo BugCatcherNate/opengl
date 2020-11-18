@@ -15,6 +15,7 @@ class TestBall : public Object
 	// Constructor
 		TestBall(glm::vec3 pos):Object(pos){
 		setTexturePath("/home/nathan/Desktop/opengl/resources/textures/green.png");
+		setModelPath("/home/nathan/Desktop/opengl/pyramid.obj");
 		}
 
 	// getters and setters

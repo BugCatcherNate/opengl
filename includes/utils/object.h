@@ -37,6 +37,7 @@ class Object
 		glm::mat4 rot;	
 
 		string texturePath;
+		string modelPath;
 		// Constructor
 	    	Object(glm::vec3 pos)
 	    	{
@@ -51,7 +52,12 @@ class Object
 	
 			position = pos;
 		}
-		
+
+		void setModelPath(string path){
+	
+			modelPath = path;
+		}
+
 		void setTexturePath(string path){
 	
 			texturePath = path;
@@ -314,7 +320,7 @@ btCollisionShape* colShape = new btBoxShape(btVector3(scale.x, scale.y, scale.z)
 	std::vector<glm::vec3> vertes;
 	std::vector<glm::vec2> uvs;
 	std::vector<glm::vec3> normals; // Won't be used at the moment.
-	bool res = loadOBJ("pyramid.obj", vertes, uvs, normals);	
+	bool res = loadOBJ(modelPath.c_str(), vertes, uvs, normals);	
 	verts = vertes;
 	bounds = makeCollider();
 	verticiessize = verts.size();
