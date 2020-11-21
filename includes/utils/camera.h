@@ -205,12 +205,17 @@ btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[physicsIndex];
 
 			glm::vec3 axis;
 			if (dir == glm::vec3(1.0f, 0.0f, 0.0f)){
+				
 			axis = getFront();}else if (dir == glm::vec3(0.0f, 0.0f, 1.0f) ){
- axis = glm::cross(getFront(), glm::vec3(0.0f,0.0f,1.0f));
+ axis = glm::normalize(glm::cross(getFront(), getUp()));
 			}else{
-
+	if(std::abs(body->getLinearVelocity().getY()) < 0.01f){
 
 	 axis = glm::vec3(0.0f, 1.0f, 0.0f);
+	}else{
+
+	 axis = glm::vec3(0.0f, 0.0f, 0.0f);
+	}
 			}	
 			body->activate(true);
 			body->applyCentralImpulse(magnitude * btVector3(axis.x, axis.y, axis.z));

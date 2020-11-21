@@ -21,7 +21,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
-Camera cam = Camera(glm::vec3(0.0f,100.0f,3.0f), SCR_WIDTH, SCR_HEIGHT);
+Camera cam = Camera(glm::vec3(0.0f,10.0f,3.0f), SCR_WIDTH, SCR_HEIGHT);
 Tree ground = Tree(glm::vec3(0.0f,0.0f,0.0f));
 
 
@@ -155,10 +155,14 @@ void processInput(GLFWwindow *window, Physics* physics)
 	cam.applyForce(physics->dynamicsWorld, -0.1f, glm::vec3(1.0f,0.0f,0.0f));
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 
-	cam.applyForce(physics->dynamicsWorld, 0.1f, glm::vec3(0.0f,0.0f,1.0f));
+	cam.applyForce(physics->dynamicsWorld, -0.2f, glm::vec3(0.0f,0.0f,1.0f));
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 
-	cam.applyForce(physics->dynamicsWorld, -0.1f, glm::vec3(0.0f,0.0f,1.0f));
+	cam.applyForce(physics->dynamicsWorld, 0.2f, glm::vec3(0.0f,0.0f,1.0f));
+
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+
+	cam.applyForce(physics->dynamicsWorld, 10.0f, glm::vec3(0.0f,1.0f,0.0f));
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 }
