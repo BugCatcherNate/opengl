@@ -15,13 +15,13 @@
 
 // Call backs
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void processInput(GLFWwindow *window);
+void processInput(GLFWwindow *window, Physics* physics);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
-Camera cam = Camera(glm::vec3(0.0f,0.0f,3.0f), SCR_WIDTH, SCR_HEIGHT);
+Camera cam = Camera(glm::vec3(0.0f,100.0f,3.0f), SCR_WIDTH, SCR_HEIGHT);
 Tree ground = Tree(glm::vec3(0.0f,0.0f,0.0f));
 
 
@@ -83,6 +83,8 @@ int main()
    	 	}
 
     ground.prepare();
+
+	cam.getCollision(physics->collisionShapes, physics->dynamicsWorld, 1.0f);
  
 for (int i = 0; i < cubes; i++) {
 	objects[i].getCollision(physics->collisionShapes, physics->dynamicsWorld, 0.0f);
@@ -104,7 +106,7 @@ for (int i = 0; i < cubes; i++) {
                 //print positions of all objects
 
         
-
+		cam.runPhysics(physics->dynamicsWorld);
 		ground.runPhysics(physics->dynamicsWorld);
         ///-----stepsimulation_end-----
 
@@ -113,7 +115,7 @@ for (int i = 0; i < cubes; i++) {
         ///-----cleanup_start-----
 
         //remove the rigidbodies from the dynamics world and delete them
-               processInput(window);
+               processInput(window, physics);
 
         // render
         // ------
@@ -144,21 +146,19 @@ for (int i = 0; i < cubes; i++) {
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 // ---------------------------------------------------------------------------------------------------------
-void processInput(GLFWwindow *window)
+void processInput(GLFWwindow *window, Physics* physics)
 {
     float cameraSpeed = 2.5f * deltaTime; // adjust accordingly
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        cam.incPosition(cameraSpeed * cam.getFront());
-
+	cam.applyForce(physics->dynamicsWorld, 0.1f, glm::vec3(1.0f,0.0f,0.0f));
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        cam.incPosition(-cameraSpeed * cam.getFront());
-
+	cam.applyForce(physics->dynamicsWorld, -0.1f, glm::vec3(1.0f,0.0f,0.0f));
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        cam.incPosition(-glm::normalize(glm::cross(cam.getFront(), cam.getUp())) * cameraSpeed);
 
+	cam.applyForce(physics->dynamicsWorld, 0.1f, glm::vec3(0.0f,0.0f,1.0f));
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        cam.incPosition(glm::normalize(glm::cross(cam.getFront(), cam.getUp())) * cameraSpeed);
 
+	cam.applyForce(physics->dynamicsWorld, -0.1f, glm::vec3(0.0f,0.0f,1.0f));
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 }
