@@ -150,15 +150,15 @@ void processInput(GLFWwindow *window, Physics* physics)
 {
     float cameraSpeed = 2.5f * deltaTime; // adjust accordingly
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-	cam.applyForce(physics->dynamicsWorld, 0.1f, glm::vec3(1.0f,0.0f,0.0f));
+	cam.applyForce(physics->dynamicsWorld,0.1f, glm::vec3(1.0f,0.0f,0.0f));
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 	cam.applyForce(physics->dynamicsWorld, -0.1f, glm::vec3(1.0f,0.0f,0.0f));
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 
-	cam.applyForce(physics->dynamicsWorld, -0.2f, glm::vec3(0.0f,0.0f,1.0f));
+	cam.applyForce(physics->dynamicsWorld, -0.15f, glm::vec3(0.0f,0.0f,1.0f));
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 
-	cam.applyForce(physics->dynamicsWorld, 0.2f, glm::vec3(0.0f,0.0f,1.0f));
+	cam.applyForce(physics->dynamicsWorld, 0.15f, glm::vec3(0.0f,0.0f,1.0f));
 
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
 

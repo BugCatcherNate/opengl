@@ -202,23 +202,48 @@ void applyForce(btDiscreteDynamicsWorld* dynamicsWorld, float magnitude, glm::ve
 
 btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[physicsIndex];
                         btRigidBody* body = btRigidBody::upcast(obj);
-
 			glm::vec3 axis;
 			if (dir == glm::vec3(1.0f, 0.0f, 0.0f)){
 				
-			axis = getFront();}else if (dir == glm::vec3(0.0f, 0.0f, 1.0f) ){
- axis = glm::normalize(glm::cross(getFront(), getUp()));
+			axis = magnitude * getFront();
+	
+			}else if (dir == glm::vec3(0.0f, 0.0f, 1.0f) ){
+
+ axis = magnitude * glm::normalize(glm::cross(getFront(), getUp()));
+
 			}else{
 	if(std::abs(body->getLinearVelocity().getY()) < 0.01f){
 
-	 axis = glm::vec3(0.0f, 1.0f, 0.0f);
-	}else{
+	 axis = magnitude *glm::vec3(0.0f, 1.0f, 0.0f);
 
+	}else{
 	 axis = glm::vec3(0.0f, 0.0f, 0.0f);
 	}
 			}	
 			body->activate(true);
-			body->applyCentralImpulse(magnitude * btVector3(axis.x, axis.y, axis.z));
+
+			body->applyCentralImpulse( btVector3(axis.x, axis.y, axis.z));
+			float d;
+			if (std::abs(body->getLinearVelocity().getX()) > 10.0f){
+				if (body->getLinearVelocity().getX() < 0.0f){
+					 d = -1.0f;
+				}else{
+
+					 d = 1.0f;
+
+				}
+			 body->setLinearVelocity(btVector3(d*10.0f, body->getLinearVelocity().getY(), body->getLinearVelocity().getZ()));
+			}
+			if (std::abs(body->getLinearVelocity().getZ()) > 10.0f){
+				if (body->getLinearVelocity().getZ() < 0.0f){
+					d = -1.0f;
+				}else{
+
+					d = 1.0f;
+
+				}
+			 body->setLinearVelocity(btVector3(body->getLinearVelocity().getX(), body->getLinearVelocity().getY(), d * 10.0f));
+			}
 }
 	        void runPhysics(btDiscreteDynamicsWorld* dynamicsWorld){
 
