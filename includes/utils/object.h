@@ -196,7 +196,6 @@ bool loadOBJ(
 	        void runPhysics(btDiscreteDynamicsWorld* dynamicsWorld){
 
 btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[physicsIndex];
-obj->setRestitution(0.9f);
                         btRigidBody* body = btRigidBody::upcast(obj);
                         btTransform trans;
                         if (body && body->getMotionState())
@@ -237,6 +236,8 @@ btCollisionShape* colShape = new btBoxShape(btVector3(scale.x, scale.y, scale.z)
 
                 btScalar mass(objectMass);
 
+
+
                 //rigidbody is dynamic if and only if mass is non zero, otherwise static
                 bool isDynamic = (mass != 0.f);
 
@@ -251,6 +252,7 @@ btCollisionShape* colShape = new btBoxShape(btVector3(scale.x, scale.y, scale.z)
                 btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, colShape, localInertia);
                 btRigidBody* body = new btRigidBody(rbInfo);
 
+		body->setFriction(1.0f);
                 dynamicsWorld->addRigidBody(body);
  physicsIndex = dynamicsWorld->getNumCollisionObjects() - 1;
 

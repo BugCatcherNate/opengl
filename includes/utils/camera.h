@@ -7,6 +7,8 @@
 #include <glm/gtc/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
 #include <glm/gtx/perpendicular.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
 
+btRigidBody* body;
+
 class Camera
 {
 	private:
@@ -31,6 +33,10 @@ class Camera
 
 	public:
 	// Constructor
+	float x = 0.0f;
+	float y = 0.0f;
+	float z = 0.0f;
+	bool jump = false;
 		Camera(glm::vec3 position, float width, float height){
 
 			cameraPos = position;
@@ -46,9 +52,23 @@ class Camera
 			cameraPos = pos;
 		}
 		
-		void incPosition(glm::vec3 inc){
+		void incPosition(glm::vec3 inc, btDiscreteDynamicsWorld*  dynamicsWorld){
+			btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[physicsIndex];
+                        btRigidBody* body = btRigidBody::upcast(obj);
+                        btTransform trans;
+                        if (body && body->getMotionState())
+                        {
+                                body->getMotionState()->getWorldTransform(trans);
+                        }
+                        else
+                        {
+                                trans = obj->getWorldTransform();
+                        }
 
-			cameraPos += inc;
+			//cameraPos += inc;
+		        //trans.setOrigin(btVector3(cameraPos.x, cameraPos.y, cameraPos.z));	
+                        body->setLinearVelocity(btVector3(inc.x, body->getLinearVelocity().getY(), inc.z));
+
 		}
 
 		glm::vec3 getPosition(){
@@ -171,18 +191,18 @@ btCollisionShape* colShape = new btBoxShape(btVector3(scale.x, scale.y, scale.z)
 
                 collisionShapes.push_back(colShape);
 
-                //btCollisionShape* colShape = new btSphereShape(btScalar(2.));
 
                 /// Create Dynamic Objects
                 btTransform startTransform;
                 startTransform.setIdentity();
 
-                btScalar mass(2.0f);
+                btScalar mass(1.0f);
 
                 //rigidbody is dynamic if and only if mass is non zero, otherwise static
                 bool isDynamic = (mass != 0.f);
 
                 btVector3 localInertia(0, 0, 0);
+
                 if (isDynamic)
                         colShape->calculateLocalInertia(mass, localInertia);
 
@@ -191,59 +211,20 @@ btCollisionShape* colShape = new btBoxShape(btVector3(scale.x, scale.y, scale.z)
 
  btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
                 btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, colShape, localInertia);
-                btRigidBody* body = new btRigidBody(rbInfo);
-		body->setFriction(0.8);
+                 body = new btRigidBody(rbInfo);
+		body->setFriction(0.95f);
                 dynamicsWorld->addRigidBody(body);
  physicsIndex = dynamicsWorld->getNumCollisionObjects() - 1;
 
 		}
 
-void applyForce(btDiscreteDynamicsWorld* dynamicsWorld, float magnitude, glm::vec3 dir){
+void applyForce(float magnitude, bool press, glm::vec3 dir){
 
-btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[physicsIndex];
-                        btRigidBody* body = btRigidBody::upcast(obj);
-			glm::vec3 axis;
-			if (dir == glm::vec3(1.0f, 0.0f, 0.0f)){
-				
-			axis = magnitude * getFront();
 	
-			}else if (dir == glm::vec3(0.0f, 0.0f, 1.0f) ){
 
- axis = magnitude * glm::normalize(glm::cross(getFront(), getUp()));
-
-			}else{
-	if(std::abs(body->getLinearVelocity().getY()) < 0.01f){
-
-	 axis = magnitude *glm::vec3(0.0f, 1.0f, 0.0f);
-
-	}else{
-	 axis = glm::vec3(0.0f, 0.0f, 0.0f);
-	}
-			}	
 			body->activate(true);
-
-			body->applyCentralImpulse( btVector3(axis.x, axis.y, axis.z));
-			float d;
-			if (std::abs(body->getLinearVelocity().getX()) > 10.0f){
-				if (body->getLinearVelocity().getX() < 0.0f){
-					 d = -1.0f;
-				}else{
-
-					 d = 1.0f;
-
-				}
-			 body->setLinearVelocity(btVector3(d*10.0f, body->getLinearVelocity().getY(), body->getLinearVelocity().getZ()));
-			}
-			if (std::abs(body->getLinearVelocity().getZ()) > 10.0f){
-				if (body->getLinearVelocity().getZ() < 0.0f){
-					d = -1.0f;
-				}else{
-
-					d = 1.0f;
-
-				}
-			 body->setLinearVelocity(btVector3(body->getLinearVelocity().getX(), body->getLinearVelocity().getY(), d * 10.0f));
-			}
+			
+				body->applyCentralImpulse(btVector3(0.0f, magnitude, 0.0f));
 }
 	        void runPhysics(btDiscreteDynamicsWorld* dynamicsWorld){
 
