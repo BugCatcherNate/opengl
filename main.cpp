@@ -22,7 +22,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 const unsigned int SCR_WIDTH = 1000;
 const unsigned int SCR_HEIGHT = 800;
 
-Camera cam = Camera(glm::vec3(0.0f,5.0f,3.0f), SCR_WIDTH, SCR_HEIGHT);
+Camera cam = Camera(glm::vec3(0.0f,10.0f,3.0f), SCR_WIDTH, SCR_HEIGHT);
 Tree ground = Tree(glm::vec3(0.0f,0.0f,0.0f));
 
 int cubes = 2;
@@ -106,7 +106,7 @@ for (int i = 0; i < cubes; i++) {
                 //print positions of all objects
 
         
-		cam.runPhysics(physics->dynamicsWorld);
+		cam.runPhysics();
 		ground.runPhysics(physics->dynamicsWorld);
         ///-----stepsimulation_end-----
 
@@ -153,20 +153,16 @@ void processInput(GLFWwindow *window, Physics* physics)
 
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        cam.incPosition(cameraSpeed * cam.getFront(), physics->dynamicsWorld);
-
-    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-        cam.castRay(physics->dynamicsWorld);
-
+        cam.incPosition(cameraSpeed * cam.getFront());
 
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        cam.incPosition(-cameraSpeed * cam.getFront(), physics->dynamicsWorld);
+        cam.incPosition(-cameraSpeed * cam.getFront());
 
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        cam.incPosition(-glm::normalize(glm::cross(cam.getFront(), cam.getUp())) * cameraSpeed, physics->dynamicsWorld);
+        cam.incPosition(-glm::normalize(glm::cross(cam.getFront(), cam.getUp())) * cameraSpeed);
 
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        cam.incPosition(glm::normalize(glm::cross(cam.getFront(), cam.getUp())) * cameraSpeed, physics->dynamicsWorld);
+        cam.incPosition(glm::normalize(glm::cross(cam.getFront(), cam.getUp())) * cameraSpeed);
 
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
@@ -175,11 +171,16 @@ void processInput(GLFWwindow *window, Physics* physics)
 }
 
 void jump_callback(GLFWwindow *window, int key, int scancode, int action, int mods){
-if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
+if (glfwGetKey(window,GLFW_KEY_SPACE) == GLFW_PRESS)
 
 	cam.applyForce(5.0f,  false, glm::vec3(0.0f,1.0f,0.0f));
+if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+       cam.castRay();
+
 
 }
+
+
 // glfw: whenever the mouse moves, this callback is called
 // -------------------------------------------------------
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)

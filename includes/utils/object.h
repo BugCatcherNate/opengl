@@ -254,7 +254,7 @@ btCollisionShape* colShape = new btBoxShape(btVector3(scale.x, scale.y, scale.z)
 		body->setFriction(0.95f);
                 dynamicsWorld->addRigidBody(body);
  physicsIndex = dynamicsWorld->getNumCollisionObjects() - 1;
-
+	
 		}
 
 		glm::vec3 makeCollider(){

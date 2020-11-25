@@ -9,7 +9,7 @@
 #include <glm/gtx/string_cast.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
 
 btRigidBody* body;
-
+btDiscreteDynamicsWorld* dynamicsWorld;
 class Camera
 {
 	private:
@@ -53,10 +53,12 @@ class Camera
 			cameraPos = pos;
 		}
 		
-		void incPosition(glm::vec3 inc, btDiscreteDynamicsWorld*  dynamicsWorld){
+		void incPosition(glm::vec3 inc){
 			btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[physicsIndex];
                         btRigidBody* body = btRigidBody::upcast(obj);
                         btTransform trans;
+				
+			body->activate(true);
                         if (body && body->getMotionState())
                         {
                                 body->getMotionState()->getWorldTransform(trans);
@@ -183,7 +185,7 @@ class Camera
 
 		}
 
-		void castRay(btDiscreteDynamicsWorld* dynamicsWorld){
+		void castRay(){
 		btVector3 start = btVector3(getPosition().x, getPosition().y, getPosition().z);
 		glm::vec3 tempEnd = getPosition() + glm::normalize(getFront()) * 500000.0f;
 		btVector3 end = btVector3(tempEnd.x, tempEnd.y, tempEnd.z);
@@ -205,10 +207,10 @@ class Camera
 
 
 
-		void getCollision(btAlignedObjectArray<btCollisionShape*> collisionShapes, btDiscreteDynamicsWorld* dynamicsWorld, float objectMass, glm::vec3 scale = glm::vec3(0,0,0)){
+		void getCollision(btAlignedObjectArray<btCollisionShape*> collisionShapes, btDiscreteDynamicsWorld* dw, float objectMass, glm::vec3 scale = glm::vec3(0,0,0)){
 			
 		scale = glm::vec3(1.0f,1.0f,1.0f);
-		
+		dynamicsWorld = dw;	
 		
 btCollisionShape* colShape = new btBoxShape(btVector3(scale.x, scale.y, scale.z));
 
@@ -244,14 +246,12 @@ btCollisionShape* colShape = new btBoxShape(btVector3(scale.x, scale.y, scale.z)
 
 void applyForce(float magnitude, bool press, glm::vec3 dir){
 
-	
-			jump = true;
 			body->activate(true);
-			
+			jump = true;
 				body->applyCentralImpulse(btVector3(0.0f, magnitude, 0.0f));
 				jump = false;
 }
-	        void runPhysics(btDiscreteDynamicsWorld* dynamicsWorld){
+	        void runPhysics(){
 
 btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[physicsIndex];
                         btRigidBody* body = btRigidBody::upcast(obj);
@@ -269,9 +269,8 @@ btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[physicsIndex];
 
 	setPosition(glm::vec3(float(trans.getOrigin().getX()), float(trans.getOrigin().getY()), float(trans.getOrigin().getZ())));
 
-	if(trans.getOrigin().getY() == 2.0f && !jump){
-		body->setLinearVelocity(btVector3(body->getLinearVelocity().getX(), 0.0f, body->getLinearVelocity().getX()));
-	}
+		//std::cout << trans.getOrigin().getY() << std::endl;
+		body->setLinearVelocity(btVector3(body->getLinearVelocity().getX(), body->getLinearVelocity().getY(), body->getLinearVelocity().getX()));
 
 		}	
 
