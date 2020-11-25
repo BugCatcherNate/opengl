@@ -228,7 +228,6 @@ btCollisionShape* colShape = new btBoxShape(btVector3(scale.x, scale.y, scale.z)
 
                 collisionShapes.push_back(colShape);
 
-                //btCollisionShape* colShape = new btSphereShape(btScalar(2.));
 
                 /// Create Dynamic Objects
                 btTransform startTransform;
@@ -251,8 +250,8 @@ btCollisionShape* colShape = new btBoxShape(btVector3(scale.x, scale.y, scale.z)
  btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
                 btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, colShape, localInertia);
                 btRigidBody* body = new btRigidBody(rbInfo);
-
-		body->setFriction(1.0f);
+		colShape->setUserPointer(body);
+		body->setFriction(0.95f);
                 dynamicsWorld->addRigidBody(body);
  physicsIndex = dynamicsWorld->getNumCollisionObjects() - 1;
 

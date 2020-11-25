@@ -19,13 +19,13 @@ void processInput(GLFWwindow *window, Physics* physics);
 void jump_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+const unsigned int SCR_WIDTH = 1000;
+const unsigned int SCR_HEIGHT = 800;
 
-Camera cam = Camera(glm::vec3(0.0f,10.0f,3.0f), SCR_WIDTH, SCR_HEIGHT);
+Camera cam = Camera(glm::vec3(0.0f,5.0f,3.0f), SCR_WIDTH, SCR_HEIGHT);
 Tree ground = Tree(glm::vec3(0.0f,0.0f,0.0f));
 
-int cubes = 50;
+int cubes = 2;
 float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
 
@@ -37,9 +37,9 @@ int main()
 	Physics* physics = new Physics();
 
 	    for (int i = 0; i < cubes; i++) {
-		 float x = rand() % 100;
-		 float y = 0.0f;
-		 float z = rand() % 100;
+		 float x = rand() % 40;
+		 float y = 50.0f;
+		 float z = rand() % 40;
        		 objects[i] = Tree(glm::vec3(x,y,z));
    	 	}
 	    
@@ -87,7 +87,7 @@ int main()
 	cam.getCollision(physics->collisionShapes, physics->dynamicsWorld, 1.0f);
  
 for (int i = 0; i < cubes; i++) {
-	objects[i].getCollision(physics->collisionShapes, physics->dynamicsWorld, 0.0f);
+	objects[i].getCollision(physics->collisionShapes, physics->dynamicsWorld, 1.0f);
    	 }
 
 	ground.getCollision(physics->collisionShapes, physics->dynamicsWorld, 0.0f, glm::vec3(500.0f, 1.0f, 500.0f));
@@ -154,6 +154,10 @@ void processInput(GLFWwindow *window, Physics* physics)
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         cam.incPosition(cameraSpeed * cam.getFront(), physics->dynamicsWorld);
+
+    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+        cam.castRay(physics->dynamicsWorld);
+
 
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
         cam.incPosition(-cameraSpeed * cam.getFront(), physics->dynamicsWorld);

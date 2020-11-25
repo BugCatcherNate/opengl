@@ -6,6 +6,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
 #include <glm/gtx/perpendicular.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
+#include <glm/gtx/string_cast.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
 
 btRigidBody* body;
 
@@ -182,6 +183,28 @@ class Camera
 
 		}
 
+		void castRay(btDiscreteDynamicsWorld* dynamicsWorld){
+		btVector3 start = btVector3(getPosition().x, getPosition().y, getPosition().z);
+		glm::vec3 tempEnd = getPosition() + glm::normalize(getFront()) * 500000.0f;
+		btVector3 end = btVector3(tempEnd.x, tempEnd.y, tempEnd.z);
+		btCollisionWorld::ClosestRayResultCallback RayCallback(start, end);
+
+                // Perform raycast
+                dynamicsWorld->rayTest(start, end, RayCallback);
+                if(RayCallback.hasHit()) {
+
+                        //End = RayCallback.m_hitPointWorld;
+                        //Normal = RayCallback.m_hitNormalWorld;
+			RayCallback.m_collisionObject->activate();
+		btRigidBody* body = (btRigidBody*)RayCallback.m_collisionObject->getCollisionShape()->getUserPointer();
+		
+		glm::vec3 gunforce = getFront() * 1.0f;	
+				body->applyCentralImpulse(btVector3(gunforce.x, gunforce.y, gunforce.z));
+                }
+        }
+
+
+
 		void getCollision(btAlignedObjectArray<btCollisionShape*> collisionShapes, btDiscreteDynamicsWorld* dynamicsWorld, float objectMass, glm::vec3 scale = glm::vec3(0,0,0)){
 			
 		scale = glm::vec3(1.0f,1.0f,1.0f);
@@ -213,6 +236,7 @@ btCollisionShape* colShape = new btBoxShape(btVector3(scale.x, scale.y, scale.z)
                 btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, colShape, localInertia);
                  body = new btRigidBody(rbInfo);
 		body->setFriction(0.95f);
+		body->setRestitution(0.01f);
                 dynamicsWorld->addRigidBody(body);
  physicsIndex = dynamicsWorld->getNumCollisionObjects() - 1;
 
@@ -221,10 +245,11 @@ btCollisionShape* colShape = new btBoxShape(btVector3(scale.x, scale.y, scale.z)
 void applyForce(float magnitude, bool press, glm::vec3 dir){
 
 	
-
+			jump = true;
 			body->activate(true);
 			
 				body->applyCentralImpulse(btVector3(0.0f, magnitude, 0.0f));
+				jump = false;
 }
 	        void runPhysics(btDiscreteDynamicsWorld* dynamicsWorld){
 
@@ -244,7 +269,9 @@ btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[physicsIndex];
 
 	setPosition(glm::vec3(float(trans.getOrigin().getX()), float(trans.getOrigin().getY()), float(trans.getOrigin().getZ())));
 
-
+	if(trans.getOrigin().getY() == 2.0f && !jump){
+		body->setLinearVelocity(btVector3(body->getLinearVelocity().getX(), 0.0f, body->getLinearVelocity().getX()));
+	}
 
 		}	
 
