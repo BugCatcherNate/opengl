@@ -31,13 +31,14 @@ class Camera
 		float lastY;
 		float nearPlane = 0.1f;
 		float farPlane = 100.0f; 
-
+	
 	public:
 	// Constructor
 	float x = 0.0f;
 	float y = 0.0f;
 	float z = 0.0f;
 	bool jump = false;
+	bool grounded = false;
 		Camera(glm::vec3 position, float width, float height){
 
 			cameraPos = position;
@@ -205,6 +206,24 @@ class Camera
                 }
         }
 
+	bool isGrounded(){
+		btVector3 start = btVector3(getPosition().x, getPosition().y, getPosition().z);
+		glm::vec3 tempEnd = getPosition() + glm::normalize(-getUp()) * 1.2f;
+		btVector3 end = btVector3(tempEnd.x, tempEnd.y, tempEnd.z);
+		btCollisionWorld::ClosestRayResultCallback RayCallback(start, end);
+
+                // Perform raycast
+                dynamicsWorld->rayTest(start, end, RayCallback);
+                if(RayCallback.hasHit()) {
+
+                        //End = RayCallback.m_hitPointWorld;
+                        //Normal = RayCallback.m_hitNormalWorld;
+			return true;	
+                }else{
+		return false;
+		}
+        }
+
 
 
 		void getCollision(btAlignedObjectArray<btCollisionShape*> collisionShapes, btDiscreteDynamicsWorld* dw, float objectMass, glm::vec3 scale = glm::vec3(0,0,0)){
@@ -238,17 +257,18 @@ btCollisionShape* colShape = new btBoxShape(btVector3(scale.x, scale.y, scale.z)
                 btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, colShape, localInertia);
                  body = new btRigidBody(rbInfo);
 		body->setFriction(0.95f);
-		body->setRestitution(0.01f);
+		body->setRestitution(0.0f);
                 dynamicsWorld->addRigidBody(body);
  physicsIndex = dynamicsWorld->getNumCollisionObjects() - 1;
 
 		}
 
 void applyForce(float magnitude, bool press, glm::vec3 dir){
-
+			if(isGrounded()){
 			body->activate(true);
 			jump = true;
 				body->applyCentralImpulse(btVector3(0.0f, magnitude, 0.0f));
+			}
 				jump = false;
 }
 	        void runPhysics(){
