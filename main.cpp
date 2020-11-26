@@ -164,8 +164,8 @@ void processInput(GLFWwindow *window, Physics* physics)
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         cam.incPosition(glm::normalize(glm::cross(cam.getFront(), cam.getUp())) * cameraSpeed);
 
-    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-       cam.castRay();
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+       cam.applyForce(5.0f,  false, glm::vec3(0.0f,1.0f,0.0f));
 
 
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -175,9 +175,9 @@ void processInput(GLFWwindow *window, Physics* physics)
 }
 
 void jump_callback(GLFWwindow *window, int key, int scancode, int action, int mods){
-if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
+if (key == GLFW_KEY_Q && action == GLFW_PRESS)
 
-	cam.applyForce(5.0f,  false, glm::vec3(0.0f,1.0f,0.0f));
+       cam.castRay();
 
 }
 

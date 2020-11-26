@@ -267,7 +267,7 @@ void applyForce(float magnitude, bool press, glm::vec3 dir){
 			if(isGrounded()){
 			body->activate(true);
 			jump = true;
-				body->applyCentralImpulse(btVector3(0.0f, magnitude, 0.0f));
+				body->setLinearVelocity(btVector3(0.0f, magnitude, 0.0f));
 			}
 				jump = false;
 }
