@@ -287,11 +287,11 @@ btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[physicsIndex];
 
 
 
-	setPosition(glm::vec3(float(trans.getOrigin().getX()), float(trans.getOrigin().getY()), float(trans.getOrigin().getZ())));
 
 		//std::cout << trans.getOrigin().getY() << std::endl;
-		body->setLinearVelocity(btVector3(body->getLinearVelocity().getX(), body->getLinearVelocity().getY(), body->getLinearVelocity().getX()));
+		//body->setLinearVelocity(btVector3(body->getLinearVelocity().getX(), body->getLinearVelocity().getY(), body->getLinearVelocity().getX()));
 
+	setPosition(glm::vec3(float(trans.getOrigin().getX()), float(trans.getOrigin().getY()), float(trans.getOrigin().getZ())));
 		}	
 
 
