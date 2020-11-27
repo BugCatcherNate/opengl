@@ -4,6 +4,7 @@
 #include <utils/physics.h>
 #include <utils/camera.h>
 #include <utils/tree.h>
+#include <utils/crate.h>
 #include <utils/object.h>
 #include <glm/vec3.hpp> // glm::vec3
 #include <glm/vec4.hpp> // glm::vec4
@@ -32,7 +33,7 @@ float lastFrame = 0.0f;
 int main()
 {
 
-	Tree* objects = new Tree[cubes];
+	Crate* objects = new Crate[cubes];
 
 	Physics* physics = new Physics();
 
@@ -40,7 +41,7 @@ int main()
 		 float x = rand() % 40;
 		 float y = 50.0f;
 		 float z = rand() % 40;
-       		 objects[i] = Tree(glm::vec3(x,y,z));
+       		 objects[i] = Crate(glm::vec3(x,y,z));
    	 	}
 	    
             // glfw: initialize and configure
@@ -87,7 +88,7 @@ int main()
 	cam.getCollision(physics->collisionShapes, physics->dynamicsWorld, 1.0f);
  
 for (int i = 0; i < cubes; i++) {
-	objects[i].getCollision(physics->collisionShapes, physics->dynamicsWorld, 1.0f);
+	objects[i].getCollision(physics->collisionShapes, physics->dynamicsWorld, 200.0f);
    	 }
 
 	ground.getCollision(physics->collisionShapes, physics->dynamicsWorld, 0.0f, glm::vec3(500.0f, 1.0f, 500.0f));
@@ -122,12 +123,12 @@ for (int i = 0; i < cubes; i++) {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	ground.draw(cam, s);
 	for (int i = 0; i < cubes; i++) {
 		 objects[i].runPhysics(physics->dynamicsWorld);
        		 objects[i].draw(cam,s);
    	 }
 
-	ground.draw(cam, s);
 
 
         // -------------------------------------------------------------------------------

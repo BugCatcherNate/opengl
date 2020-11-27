@@ -32,10 +32,9 @@ class Object
 		glm::vec3 bounds;
 	public:	
 		Object() {};
- 		unsigned int VBO, VAO, EBO;
+ 		unsigned int VBO, VAO, EBO, texture1;
 		
 		glm::mat4 rot;	
-
 		string texturePath;
 		string modelPath;
 		// Constructor
@@ -326,7 +325,6 @@ btCollisionShape* colShape = new btBoxShape(btVector3(scale.x, scale.y, scale.z)
 	bounds = makeCollider();
 	verticiessize = verts.size();
 
-	unsigned int texture1;
     // texture 1
     // ---------
     glGenTextures(1, &texture1);
@@ -351,7 +349,10 @@ btCollisionShape* colShape = new btBoxShape(btVector3(scale.x, scale.y, scale.z)
         std::cout << "Failed to load texture" << std::endl;
     }
     stbi_image_free(data);
-glActiveTexture(GL_TEXTURE0);
+//    if(textIndex == 0){
+//glActiveTexture(GL_TEXTURE0);}else{
+//glActiveTexture(GL_TEXTURE1);
+//}
     			glGenVertexArrays(1, &VAO);
     			glGenBuffers(1, &VBO);
     			glBindVertexArray(VAO);
@@ -417,8 +418,10 @@ glActiveTexture(GL_TEXTURE0);
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
 
-        s.setMat4("projection", projection);
 
+
+        s.setMat4("projection", projection);
+		glBindTexture(GL_TEXTURE_2D, texture1); 
         	glBindVertexArray(VAO); 
         	glDrawArrays(GL_TRIANGLES, 0, verticiessize);
 
