@@ -240,7 +240,7 @@ btCollisionShape* colShape = new btBoxShape(btVector3(scale.x, scale.y, scale.z)
                 btTransform startTransform;
                 startTransform.setIdentity();
 
-                btScalar mass(1.0f);
+                btScalar mass(10.0f);
 
                 //rigidbody is dynamic if and only if mass is non zero, otherwise static
                 bool isDynamic = (mass != 0.f);
@@ -287,9 +287,6 @@ btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[physicsIndex];
 
 
 
-
-		//std::cout << trans.getOrigin().getY() << std::endl;
-		//body->setLinearVelocity(btVector3(body->getLinearVelocity().getX(), body->getLinearVelocity().getY(), body->getLinearVelocity().getX()));
 
 	setPosition(glm::vec3(float(trans.getOrigin().getX()), float(trans.getOrigin().getY()), float(trans.getOrigin().getZ())));
 		}	
