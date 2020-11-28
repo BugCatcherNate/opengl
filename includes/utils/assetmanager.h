@@ -21,6 +21,7 @@ class AssetManager
 	AssetManager(){	}
 	
 	FILE* modelPath(string path){
+		cout << "what" << endl;
 if(find(modelPaths.begin(), modelPaths.end(), path) != modelPaths.end()) {
 	cout << "model already loaded" << endl;
 	auto it = find(modelPaths.begin(), modelPaths.end(), path);
@@ -45,38 +46,24 @@ if(find(modelPaths.begin(), modelPaths.end(), path) != modelPaths.end()) {
 	}
 
 	void texturePath(string path, int width, int height, int nrChannels){
-	bool found = true;
 	unsigned char* data;
-	unsigned char* tempdata;
-		if(find(texturePaths.begin(), texturePaths.end(), path) != texturePaths.end()) {
-	cout << "texture already loaded" << endl;
-	auto it = find(texturePaths.begin(), texturePaths.end(), path);
-        int index = it - texturePaths.begin();
         
-	 data = textureData[index]; 
-
-} else {
-	texturePaths.push_back(path);
-	found = false;
-
+	cout << "ok" << endl;
 	data = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
-	tempdata = data;
-	textureData.push_back(tempdata);
-}
- 	if (tempdata)
+
+ 	if (data)
     {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, tempdata);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
     }
     else
     {
         std::cout << "Failed to load texture" << std::endl;
     }
-if(!found){
     stbi_image_free(data);
+    cout << "done" << endl;
 }
 
-	}
 	// getters and setters
 };
 
