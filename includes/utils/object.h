@@ -7,11 +7,12 @@
 #include <glm/glm.hpp>
 #include <utils/shader.h>
 #include <utils/camera.h>
+#include <utils/assetmanager.h>
 #include <math.h>
 #include <glm/gtc/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
 #include <glm/gtc/type_ptr.hpp>
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
+//#define STB_IMAGE_IMPLEMENTATION
+//#include <stb_image.h>
 
 #include <glm/gtx/quaternion.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
 using namespace std;
@@ -31,19 +32,19 @@ class Object
 
 		glm::vec3 bounds;
 	public:	
+		AssetManager* am;
 		Object() {};
  		unsigned int VBO, VAO, EBO, texture1;
-		
 		glm::mat4 rot;	
 		string texturePath;
 		string modelPath;
 		// Constructor
-	    	Object(glm::vec3 pos)
+	    	Object(glm::vec3 pos, AssetManager* a)
 	    	{
 		position = pos;
 		rotationRadians = 0.0f;
 		rotationAxis = glm::vec3(1.0f, 1.0f, 1.0f);
-				
+		am = a;	
 	    	}
 	
 	    	// getters and setters
@@ -98,7 +99,7 @@ class Object
 	// Methods
 	
 bool loadOBJ(
-	const char * path, 
+	string path, 
 	std::vector<glm::vec3> & out_vertices, 
 	std::vector<glm::vec2> & out_uvs,
 	std::vector<glm::vec3> & out_normals
@@ -109,14 +110,7 @@ bool loadOBJ(
 	std::vector<glm::vec2> temp_uvs;
 	std::vector<glm::vec3> temp_normals;
 
-
-	FILE * file = fopen(path, "r");
-	if( file == NULL ){
-		printf("Impossible to open the file ! Are you in the right path ? See Tutorial 1 for details\n");
-		getchar();
-		exit(false);
-		return false;
-	}
+	FILE* file = am->modelPath(path);
 
 	while( file ){
 
@@ -320,7 +314,7 @@ btCollisionShape* colShape = new btBoxShape(btVector3(scale.x, scale.y, scale.z)
 	std::vector<glm::vec3> vertes;
 	std::vector<glm::vec2> uvs;
 	std::vector<glm::vec3> normals; // Won't be used at the moment.
-	bool res = loadOBJ(modelPath.c_str(), vertes, uvs, normals);	
+	bool res = loadOBJ(modelPath, vertes, uvs, normals);	
 	verts = vertes;
 	bounds = makeCollider();
 	verticiessize = verts.size();
@@ -338,17 +332,18 @@ btCollisionShape* colShape = new btBoxShape(btVector3(scale.x, scale.y, scale.z)
     // load image, create texture and generate mipmaps
     int width, height, nrChannels;
     // The FileSystem::getPath(...) is part of the GitHub repository so we can find files on any IDE/platform; replace it with your own image path.
-    unsigned char *data = stbi_load(texturePath.c_str(), &width, &height, &nrChannels, 0);
-    if (data)
-    {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    else
-    {
-        std::cout << "Failed to load texture" << std::endl;
-    }
-    stbi_image_free(data);
+    //unsigned char *data = stbi_load(texturePath.c_str(), &width, &height, &nrChannels, 0);
+    am->texturePath(texturePath, width, height, nrChannels);
+   // if (data)
+    //{
+    //    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    //    glGenerateMipmap(GL_TEXTURE_2D);
+    //}
+    //else
+    //{
+    //    std::cout << "Failed to load texture" << std::endl;
+    //}
+    //stbi_image_free(data);
 //    if(textIndex == 0){
 //glActiveTexture(GL_TEXTURE0);}else{
 //glActiveTexture(GL_TEXTURE1);

@@ -4,6 +4,7 @@
 #include <utils/physics.h>
 #include <utils/camera.h>
 #include <utils/tree.h>
+#include <utils/assetmanager.h>
 #include <utils/crate.h>
 #include <utils/object.h>
 #include <glm/vec3.hpp> // glm::vec3
@@ -23,10 +24,10 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 const unsigned int SCR_WIDTH = 1000;
 const unsigned int SCR_HEIGHT = 800;
 
+static AssetManager am = AssetManager();
 Camera cam = Camera(glm::vec3(0.0f,10.0f,3.0f), SCR_WIDTH, SCR_HEIGHT);
-Tree ground = Tree(glm::vec3(0.0f,0.0f,0.0f));
-
-int cubes = 2;
+Tree ground = Tree(glm::vec3(0.0f,0.0f,0.0f), &am);
+int cubes = 10;
 float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
 
@@ -41,7 +42,7 @@ int main()
 		 float x = rand() % 40;
 		 float y = 50.0f;
 		 float z = rand() % 40;
-       		 objects[i] = Crate(glm::vec3(x,y,z));
+       		 objects[i] = Crate(glm::vec3(x,y,z), &am);
    	 	}
 	    
             // glfw: initialize and configure
